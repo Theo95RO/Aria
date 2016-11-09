@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.gmail.btheo95.aria.Constants;
 import com.gmail.btheo95.aria.model.IPv4;
+import com.gmail.btheo95.aria.model.IpChecker;
+import com.gmail.btheo95.aria.model.IpCheckerContext;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -53,12 +55,12 @@ public class ServerScannerService extends IntentService {
             IPv4 ip = getIpAddress();
             Log.d(TAG, "Device local ip: " + ip);
 
-            List<IPv4> serverIpsList = getServerIps(ip);
+            List<IpCheckerContext> serverIpsList = getServerIps(ip);
         }
     }
 
-    private List<IPv4> getServerIps(IPv4 currentDiviceIp) {
-        List<IPv4> serverIpsList = new ArrayList<>();
+    private List<IpCheckerContext> getServerIps(IPv4 currentDiviceIp) {
+        List<IpCheckerContext> serverIpsList = new ArrayList<>();
 
         final ExecutorService es = Executors.newFixedThreadPool(20);
         final int timeout = 200;
@@ -66,22 +68,21 @@ public class ServerScannerService extends IntentService {
         IPv4 ip = new IPv4(currentDiviceIp);
         ip.setCell4((short)0);
 
-        final List<Future<Boolean>> futures = new ArrayList<>();
-        for (int port = 1; port <= 256; port++) {
+        final List<Future<IpCheckerContext>> futures = new ArrayList<>();
+        for (int i = 1; i <= 256; i++) {
             futures.add(ipIsOpen(es, ip.toString(), Constants.serverPort, timeout));
             ip.increment();
         }
 
         es.shutdown();
         int openPorts = 0;
-        for (final Future<Boolean> f : futures) {
+        for (final Future<IpCheckerContext> f : futures) {
             try {
-                if (f.get()) {
+                if (f.get().isOpened()) {
                     openPorts++;
+                    serverIpsList.add(f.get());
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
@@ -90,56 +91,57 @@ public class ServerScannerService extends IntentService {
         return serverIpsList;
     }
 
-    public static Future<Boolean> ipIsOpen(final ExecutorService es, final String ip, final int port, final int timeout) {
+    public static Future<IpCheckerContext> ipIsOpen(final ExecutorService es, final String ip, final int port, final int timeout) {
 
         //Log.v(TAG, "Checking if ip is open: " + ip + ":" + port);
 
-        return es.submit(new Callable<Boolean>() {
-            @Override public Boolean call() {
-
-
+        return es.submit(new IpChecker(ip, port, timeout));
+//        return es.submit(new Callable<Boolean>() {
+//            @Override public Boolean call() {
+//
+//
+////                try {
+////                    SocketAddress sockaddr = new InetSocketAddress(ip, port);
+////                    // Create an unbound socket
+////                    Socket sock = new Socket();
+////                    sock.connect(sockaddr, timeout);
+////                    Log.v(TAG, "ip is opened:" + ip + ":" + port);
+////                    return true;
+////                } catch (IOException e) {
+////                    Log.v(TAG, "ip is closed(IOException): " + ip + ":" + port);
+////                    return false;
+////                }
+//
 //                try {
-//                    SocketAddress sockaddr = new InetSocketAddress(ip, port);
-//                    // Create an unbound socket
-//                    Socket sock = new Socket();
-//                    sock.connect(sockaddr, timeout);
+//                    URL url = new URL("http://" + ip + ":" + port);
+//                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//                    urlConnection.setConnectTimeout(timeout);
+//                    urlConnection.connect();
 //                    Log.v(TAG, "ip is opened:" + ip + ":" + port);
+//                    urlConnection.disconnect();
+//
 //                    return true;
+//                } catch (MalformedURLException e) {
+//                    Log.v(TAG, "ip is closed(MalformedURLException): " + ip + ":" + port);
+//                    return false;
 //                } catch (IOException e) {
 //                    Log.v(TAG, "ip is closed(IOException): " + ip + ":" + port);
 //                    return false;
 //                }
-
-                try {
-                    URL url = new URL("http://" + ip + ":" + port);
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setConnectTimeout(timeout);
-                    urlConnection.connect();
-                    Log.v(TAG, "ip is opened:" + ip + ":" + port);
-                    urlConnection.disconnect();
-
-                    return true;
-                } catch (MalformedURLException e) {
-                    Log.v(TAG, "ip is closed(MalformedURLException): " + ip + ":" + port);
-                    return false;
-                } catch (IOException e) {
-                    Log.v(TAG, "ip is closed(IOException): " + ip + ":" + port);
-                    return false;
-                }
-
-
-//                try {
-//                    Socket socket = new Socket();
-//                    socket.connect(new InetSocketAddress(ip, port), timeout);
-//                    socket.close();
-//                    Log.v(TAG, "ip is opened:" + ip + ":" + port);
-//                    return true;
-//                } catch (Exception ex) {
-//                    Log.v(TAG, "ip is closed: " + ip + ":" + port);
-//                    return false;
-//                }
-            }
-        });
+//
+//
+////                try {
+////                    Socket socket = new Socket();
+////                    socket.connect(new InetSocketAddress(ip, port), timeout);
+////                    socket.close();
+////                    Log.v(TAG, "ip is opened:" + ip + ":" + port);
+////                    return true;
+////                } catch (Exception ex) {
+////                    Log.v(TAG, "ip is closed: " + ip + ":" + port);
+////                    return false;
+////                }
+//            }
+//        });
     }
     public IPv4 getIpAddress() {
 //        try {
