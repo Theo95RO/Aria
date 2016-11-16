@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -70,9 +71,41 @@ public class Database extends SQLiteOpenHelper {
         context.deleteDatabase(DATABASE_NAME);
     }
 
+    public boolean addFile(File file) {
+        //TODO: de implementat
+        return false;
+    }
+
+    public boolean addFiles(File[] files) {
+        //TODO: de implementat
+        return false;
+    }
+
+    public void removeFile(File file) {
+        //TODO: de implementat
+
+    }
+
+    public void removeFiles(File[] files) {
+
+        //TODO: de implementat
+    }
+
+    public void updateDate() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Date currentDate = new Date();
+
+        ContentValues contentValues = new ContentValues();
+        String id = "1"; //TODO: sa fac cate o data pentru fiecare server
+        contentValues.put(DATE_TABLE_DATE_ID, 1);
+        contentValues.put(DATE_TABLE_DATE_COLUMN, currentDate.getTime());
+        db.update(DATE_TABLE, contentValues, "ID = ?",new String[] { id });
+
+    }
+
     public Date getLastDate () {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+ DATE_TABLE, null);
+//        Cursor res = db.rawQuery("select * from "+ DATE_TABLE, null);
         Cursor cursor = db.query(DATE_TABLE,
                 new String[] {DATE_TABLE_DATE_COLUMN},
                 DATE_TABLE_DATE_ID + " = ?",
