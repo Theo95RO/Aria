@@ -87,7 +87,6 @@ public class Database extends SQLiteOpenHelper {
     }
 
     public void removeFiles(File[] files) {
-
         //TODO: de implementat
     }
 
