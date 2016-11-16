@@ -1,15 +1,23 @@
 package com.gmail.btheo95.aria;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
+
+    private final static String TAG = MainActivity.class.getSimpleName();
+    private Database db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +34,32 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+
+        db = new Database(this);
+
+//        File CameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString());
+
+
+        Log.d(TAG, "Last registred date in database: " + db.getLastDate());
+
+        db.deleteDatabase();
+
+        File[] dcimFolders = Utils.getDcimFolders(this);
+
+        Log.d(TAG, "Number of DCIM folders: " + dcimFolders.length);
+        for (File file : dcimFolders) {
+            Log.d(TAG, "Camera directory: " + file);
+        }
+
+
+
+//        File[] files = CameraDirectory.listFiles();
+//        for (File CurFile : files) {
+//            if (CurFile.isDirectory()) {
+//                Log.d(TAG, "Camera directory folder: " + CurFile);
+//            }
+//        }
     }
 
     @Override
