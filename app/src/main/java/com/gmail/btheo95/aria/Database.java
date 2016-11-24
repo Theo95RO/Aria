@@ -71,23 +71,29 @@ public class Database extends SQLiteOpenHelper {
         context.deleteDatabase(DATABASE_NAME);
     }
 
-    public boolean addFile(File file) {
-        //TODO: de implementat
-        return false;
+    public void addFile(File file) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(PICTURES_TABLE_PATH, file.getPath());
+        db.insert(PICTURES_TABLE,null ,contentValues);
     }
 
-    public boolean addFiles(File[] files) {
-        //TODO: de implementat
-        return false;
+    public void addFiles(File[] files) {
+
+        for (File file : files) {
+            addFile(file);
+        }
     }
 
     public void removeFile(File file) {
-        //TODO: de implementat
-
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(PICTURES_TABLE, PICTURES_TABLE_PATH + " = ?",new String[] {file.getPath()});
     }
 
     public void removeFiles(File[] files) {
-        //TODO: de implementat 
+        for (File file : files) {
+            removeFile(file);
+        }
     }
 
     public void updateDate() {
@@ -102,6 +108,24 @@ public class Database extends SQLiteOpenHelper {
 
     }
 
+    public File[] getAllPhotos() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from "+PICTURES_TABLE,null);
+
+        int pathColumnIdex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
+
+        File[] files = new File[cursor.getCount()];
+
+        int count = 0;
+        while (cursor.moveToNext()) {
+            File file = new File(cursor.getString(pathColumnIdex));
+            files[count++] = file;
+        }
+
+        return files;
+
+    }
     public Date getLastDate () {
         SQLiteDatabase db = this.getWritableDatabase();
 //        Cursor res = db.rawQuery("select * from "+ DATE_TABLE, null);

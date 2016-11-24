@@ -17,7 +17,6 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
-    private Database db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,30 +35,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        db = new Database(this);
-
-//        File CameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString());
-
-
-        Log.d(TAG, "Last registred date in database: " + db.getLastDate());
-
-        db.deleteDatabase();
-
-        File[] dcimFolders = Utils.getDcimFolders(this);
-
-        Log.d(TAG, "Number of DCIM folders: " + dcimFolders.length);
-        for (File file : dcimFolders) {
-            Log.d(TAG, "Camera directory: " + file);
-        }
-
-
-
-//        File[] files = CameraDirectory.listFiles();
-//        for (File CurFile : files) {
-//            if (CurFile.isDirectory()) {
-//                Log.d(TAG, "Camera directory folder: " + CurFile);
-//            }
-//        }
     }
 
     @Override

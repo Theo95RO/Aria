@@ -7,10 +7,15 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import com.gmail.btheo95.aria.Constants;
+import com.gmail.btheo95.aria.Database;
+import com.gmail.btheo95.aria.HttpFileUpload;
+import com.gmail.btheo95.aria.Utils;
 import com.gmail.btheo95.aria.model.IPv4;
 import com.gmail.btheo95.aria.model.IpChecker;
 import com.gmail.btheo95.aria.model.IpCheckerContext;
+import com.jaredrummler.android.device.DeviceName;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Inet4Address;
@@ -43,8 +48,11 @@ public class ServerScannerService extends IntentService {
 
     private final static String TAG = ServerScannerService.class.getSimpleName();
 
+    private Database db;
+
     public ServerScannerService() {
         super("ServerScannerService");
+        db = new Database(this);
     }
 
     @Override
@@ -56,6 +64,40 @@ public class ServerScannerService extends IntentService {
             Log.d(TAG, "Device local ip: " + ip);
 
             List<IpCheckerContext> serverIpsList = getServerIps(ip);
+            try {
+                List<File> photosList = Utils.getPhotosAfterDate(db.getLastDate(), this);
+                File[] photosArray = new File[photosList.size()];
+                photosList.toArray(photosArray);
+                db.addFiles(photosArray);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (serverIpsList.size() > 0) {
+                File[] filesToUpload = db.getAllPhotos();
+                String deviceNameAndImei = DeviceName.getDeviceName() + " - " + Utils.getDeviceImei(this);
+                String serverUri = ("http://" + serverIpsList.get(0).getIp()+ ":" + Constants.serverPort + "/uploadPhoto/" + deviceNameAndImei);
+                serverUri = serverUri.replaceAll(" ", "_");
+                HttpFileUpload httpFileUpload = null;
+                try {
+                    httpFileUpload = new HttpFileUpload(serverUri);
+                    int count  = 0;
+                    for (File file : filesToUpload) {
+                        try {
+                            httpFileUpload.sendNow(file);
+                            db.removeFile(file);
+                            Log.v(TAG, "1 file uploaded");
+                        } catch (IOException e) {
+                            Log.v(TAG, "1 file upload failed");
+                        }
+                        if (count++ == 20) break; //for debugging
+                    }
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            db.close();
         }
     }
 
