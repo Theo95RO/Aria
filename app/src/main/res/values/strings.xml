@@ -1,4 +1,34 @@
 <resources>
     <string name="app_name">Aria</string>
     <string name="action_settings">Settings</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_main">Aria</string>
+
+    <string name="settings">Settings</string>
+    <string name="status">Status</string>
+    <string name="general_settings">General</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <!-- Strings related to Preferances -->
+    <string name="uploadVideosPreferenceSwitch">Upload videos</string>
+    <string name="deleteAfterUploadPreferenceSwitch">Delete content after upload</string>
+    <string name="uploadPhotosPreferenceSwitch">Upload photos</string>
+    <string name="showNotificationPreferenceSwitch">Notifications</string>
+
+    <string name="uploadVideosPreferenceSummary">Upload videos to your PC</string>
+    <string name="deleteAfterUploadPreferenceSummary">The content will be deleted locally after upload</string>
+    <string name="uploadPhotosPreferenceSummary">Upload photos to your PC</string>
+    <string name="showNotificationPreferenceSummary">Show botifications while uploading</string>
+    <string name="upload_settings">Upload</string>
+
+    <!--Strings related to navigation drawer-->
+    <string name="nav_settings">Settings</string>
+    <string name="nav_status">Status</string>
+    <string name="nav_servers">Servers</string>
+
 </resources>
