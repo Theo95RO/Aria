@@ -12,4 +12,13 @@
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
+
+
+    <!--Colors related to intro pages-->
+    <color name="intro_1_background">#008a00</color>
+    <color name="intro_1_buttons">#a4c400</color>
+    <color name="intro_2_background">#0050ef</color>
+    <color name="intro_2_buttons">#00aba9</color>
+    <color name="intro_3_background">#fa6800</color>
+    <color name="intro_3_buttons">#f0a30a</color>
 </resources>

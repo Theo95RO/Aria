@@ -31,4 +31,18 @@
     <string name="nav_status">Status</string>
     <string name="nav_servers">Servers</string>
 
+
+
+    <!-- Strings related to Intro -->
+    <string name="intro_1_title">Welcome to Aria</string>
+    <string name="intro_1_description">This app helps you to automatically backup your photos to your PC</string>
+    <!--<string name="intro_2_title">Server Download</string>-->
+    <!--<string name="intro_2_description">In order for this app to work, you need to download the server for the PC. Click the button bellow to copy the download URL to clipboard.</string>-->
+    <string name="intro_2_title">test.ro</string>
+    <string name="intro_2_description">Access this URL from your PC to donwload the server</string>
+    <string name="intro_3_title">Permissions</string>
+    <string name="intro_3_description">In order for this app to work, you need to grand the permissions. /"Write External Storage/" is needed for the app to search for photos. /"Read Phone State/" is needed for the server to identify your device.</string>
+    <string name="button_download_link_text">Copy URL</string>
+    <string name="toast_after_button_download_click">URL Copied to clipboard</string>
+    <string name="URL_download">http://test.ro</string>
 </resources>
