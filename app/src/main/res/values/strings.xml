@@ -45,4 +45,8 @@
     <string name="button_download_link_text">Copy URL</string>
     <string name="toast_after_button_download_click">URL Copied to clipboard</string>
     <string name="URL_download">http://test.ro</string>
+    <!--Strings related to FAB Intro Prompt-->
+    <string name="fab_prompt_primary_text">Upload a custom file</string>
+    <string name="fab_prompt_secondary_text">Tap the button to upload to your PC a specific file from your device.</string>
+
 </resources>

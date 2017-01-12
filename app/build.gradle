@@ -26,7 +26,8 @@ dependencies {
     })
 
 
-
+    compile 'com.getkeepsafe.taptargetview:taptargetview:1.6.1'
+    compile 'uk.co.samuelwall:material-tap-target-prompt:1.6.3'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
     compile 'com.github.TangoAgency:material-intro-screen:0.0.4'
     compile 'com.heinrichreimersoftware:material-intro:1.6'
