@@ -6,4 +6,5 @@ package com.gmail.btheo95.aria;
 
 public class Constants {
     public static final int serverPort = 8081;
+    public static final int timeoutForServerChecking = 200;
 }

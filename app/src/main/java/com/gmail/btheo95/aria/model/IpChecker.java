@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -35,6 +36,10 @@ public class IpChecker implements Callable<IpCheckerContext>{
             urlConnection.connect();
             Log.v(TAG, "ip is opened:" + ip + ":" + port);
             urlConnection.disconnect();
+
+            // TODO: sa incerc conexiunea doar prin linia de jos si saii prind eraorea ei
+            InetAddress address = InetAddress.getByName(ip);
+            deviceName = address.getHostName();
 
             isOpened = true;
         } catch (MalformedURLException e) {

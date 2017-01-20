@@ -11,6 +11,10 @@ public class IpCheckerContext {
     private String deviceName;
     private boolean isOpened = false;
 
+//    public IpCheckerContext(String ip, int port) {
+//
+//    }
+
     public IpCheckerContext(String ip, int port, String deviceName, boolean isOpened) {
         this.ip = ip;
         this.port = port;

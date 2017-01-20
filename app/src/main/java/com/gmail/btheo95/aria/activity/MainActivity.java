@@ -24,6 +24,7 @@ import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.gmail.btheo95.aria.R;
+import com.gmail.btheo95.aria.fragment.ServersFragment;
 import com.gmail.btheo95.aria.fragment.SettingsFragment;
 import com.gmail.btheo95.aria.fragment.StatusFragment;
 
@@ -140,6 +141,9 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_status) {
             setMainFragment(StatusFragment.newInstance());
+            fab.show();
+        } else if (id == R.id.nav_servers) {
+            setMainFragment(ServersFragment.newInstance());
             fab.show();
         }
 
