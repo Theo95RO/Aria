@@ -38,6 +38,21 @@ public class IPv4 {
         this.cell4 = (short)cell4;
     }
 
+    public IPv4(String ip){
+        String[] parts = ip.split(".");
+        String part1 = parts[0]; // 004
+        String part2 = parts[1]; // 034556
+
+        if (parts.length > 4) {
+            // TODO: sa arunc exceptie daca are mai mult de 4 parti. "InvalidFormatException".
+        }
+
+        this.cell1 = Short.valueOf(parts[0]);
+        this.cell2 = Short.valueOf(parts[1]);
+        this.cell3 = Short.valueOf(parts[2]);
+        this.cell4 = Short.valueOf(parts[3]);
+    }
+
     public void increment(){
         cell4++;
         if (cell4 >= 256){

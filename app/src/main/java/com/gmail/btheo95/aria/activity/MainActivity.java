@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
     private NavigationView navigationView;
+    private int currentNavigationItemId;
 
     public static final String PREF_KEY_FIRST_START = "com.gmail.btheo95.aria.PREF_KEY_FIRST_START";
     public static final int REQUEST_CODE_INTRO = 1;
@@ -56,9 +57,6 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent intent = new Intent(MainActivity.this, IntroActivity.class);
-                //startActivityForResult(intent, REQUEST_CODE_INTRO);
-                //setTargetPromptForFAB();
                 startPickFileActivity();
             }
         });
@@ -73,12 +71,12 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        drawer.addDrawerListener(toggle);
+        currentNavigationItemId = R.id.nav_status;
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        navigationView.setCheckedItem(R.id.nav_status);
 
 
         boolean firstStart = PreferenceManager.getDefaultSharedPreferences(this)
@@ -88,9 +86,13 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, IntroActivity.class);
             startActivityForResult(intent, REQUEST_CODE_INTRO);
         }
+        //Set the fragment initially
         else{
-            //Set the fragment initially
-            setMainFragmentWithoutAnimation(StatusFragment.newInstance());
+            //if screen did not rotate
+            if (savedInstanceState == null) {
+                Log.v(TAG, "TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
+                setMainFragmentWithoutAnimation(StatusFragment.newInstance());
+            }
         }
 
 
@@ -128,6 +130,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
     //@SuppressWarnings("StatementWithEmptyBody")
     //@NonNull at MenuItem because Android Studio suggested this way, not sure why
     @Override
@@ -135,17 +138,22 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_settings) {
-            setMainFragment(SettingsFragment.newInstance());
-            fab.hide();
 
-        } else if (id == R.id.nav_status) {
-            setMainFragment(StatusFragment.newInstance());
-            fab.show();
-        } else if (id == R.id.nav_servers) {
-            setMainFragment(ServersFragment.newInstance());
-            fab.show();
+        if (currentNavigationItemId != id) {
+            currentNavigationItemId = id;
+            if (id == R.id.nav_settings) {
+                setMainFragment(SettingsFragment.newInstance());
+                fab.hide();
+
+            } else if (id == R.id.nav_status) {
+                setMainFragment(StatusFragment.newInstance());
+                fab.show();
+            } else if (id == R.id.nav_servers) {
+                setMainFragment(ServersFragment.newInstance());
+                fab.show();
+            }
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -184,6 +192,32 @@ public class MainActivity extends AppCompatActivity
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean("hasRotated" , true);
+        savedInstanceState.putInt("currentNavigationItemId", currentNavigationItemId);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        currentNavigationItemId = savedInstanceState.getInt("currentNavigationItemId");
+        if (currentNavigationItemId == R.id.nav_settings) {
+            setMainFragmentWithoutAnimation(SettingsFragment.newInstance());
+            fab.hide();
+
+        } else if (currentNavigationItemId == R.id.nav_status) {
+            setMainFragmentWithoutAnimation(StatusFragment.newInstance());
+            //fab.show();
+        } else if (currentNavigationItemId == R.id.nav_servers) {
+            setMainFragmentWithoutAnimation(ServersFragment.newInstance());
+            //fab.show();
+        }
     }
 
     private void setTargetPromptForFAB() {

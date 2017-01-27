@@ -2,6 +2,8 @@ package com.gmail.btheo95.aria.model;
 
 import android.util.Log;
 
+import com.gmail.btheo95.aria.utils.Network;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -13,12 +15,13 @@ import java.util.concurrent.Callable;
  * Created by btheo on 09.11.2016.
  */
 
-public class IpChecker implements Callable<IpCheckerContext>{
+public class IpChecker implements Callable<Server>{
 
     private final static String TAG = IpChecker.class.getSimpleName();
     private String ip;
     private int port;
-    private String deviceName; //TODO:
+    private String deviceName;
+    private String macAdress;
     private boolean isOpened = false;
     private int timeout;
 
@@ -28,7 +31,7 @@ public class IpChecker implements Callable<IpCheckerContext>{
         this.timeout = timeout;
     }
     @Override
-    public IpCheckerContext call() throws Exception {
+    public Server call() throws Exception {
         try {
             URL url = new URL("http://" + ip + ":" + port);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -39,8 +42,8 @@ public class IpChecker implements Callable<IpCheckerContext>{
 
             // TODO: sa incerc conexiunea doar prin linia de jos si saii prind eraorea ei
             InetAddress address = InetAddress.getByName(ip);
-            deviceName = address.getHostName();
-
+            deviceName = address.getCanonicalHostName();
+            macAdress = Network.getMacAdressFromIp(ip);
             isOpened = true;
         } catch (MalformedURLException e) {
             Log.v(TAG, "ip is closed(MalformedURLException): " + ip + ":" + port);
@@ -49,7 +52,7 @@ public class IpChecker implements Callable<IpCheckerContext>{
             Log.v(TAG, "ip is closed(IOException): " + ip + ":" + port);
             isOpened = false;
         }
-        return new IpCheckerContext(ip, port, deviceName, isOpened);
+        return new Server(ip, port, deviceName, isOpened, macAdress);
     }
 
     public String getIp() {

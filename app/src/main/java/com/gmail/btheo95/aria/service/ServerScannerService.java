@@ -13,6 +13,7 @@ import com.gmail.btheo95.aria.Utils;
 import com.gmail.btheo95.aria.model.IPv4;
 import com.gmail.btheo95.aria.model.IpChecker;
 import com.gmail.btheo95.aria.model.IpCheckerContext;
+import com.gmail.btheo95.aria.model.Server;
 import com.jaredrummler.android.device.DeviceName;
 
 import java.io.File;
@@ -63,7 +64,7 @@ public class ServerScannerService extends IntentService {
             IPv4 ip = getIpAddress();
             Log.d(TAG, "Device local ip: " + ip);
 
-            List<IpCheckerContext> serverIpsList = getServerIps(ip);
+            List<Server> serverIpsList = getServerIps(ip);
             try {
                 List<File> photosList = Utils.getPhotosAfterDate(db.getLastDate(), this);
                 File[] photosArray = new File[photosList.size()];
@@ -76,7 +77,7 @@ public class ServerScannerService extends IntentService {
             if (serverIpsList.size() > 0) {
                 File[] filesToUpload = db.getAllPhotos();
                 String deviceNameAndImei = DeviceName.getDeviceName() + " - " + Utils.getDeviceImei(this);
-                String serverUri = ("http://" + serverIpsList.get(0).getIp()+ ":" + Constants.serverPort + "/uploadPhoto/" + deviceNameAndImei);
+                String serverUri = ("http://" + serverIpsList.get(0).getIp()+ ":" + Constants.SERVER_PORT + "/uploadPhoto/" + deviceNameAndImei);
                 serverUri = serverUri.replaceAll(" ", "_");
                 HttpFileUpload httpFileUpload = null;
                 try {
@@ -101,8 +102,8 @@ public class ServerScannerService extends IntentService {
         }
     }
 
-    private List<IpCheckerContext> getServerIps(IPv4 currentDiviceIp) {
-        List<IpCheckerContext> serverIpsList = new ArrayList<>();
+    private List<Server> getServerIps(IPv4 currentDiviceIp) {
+        List<Server> serverIpsList = new ArrayList<>();
 
         final ExecutorService es = Executors.newFixedThreadPool(20);
         final int timeout = 200;
@@ -110,15 +111,15 @@ public class ServerScannerService extends IntentService {
         IPv4 ip = new IPv4(currentDiviceIp);
         ip.setCell4((short)0);
 
-        final List<Future<IpCheckerContext>> futures = new ArrayList<>();
+        final List<Future<Server>> futures = new ArrayList<>();
         for (int i = 1; i <= 256; i++) {
-            futures.add(ipIsOpen(es, ip.toString(), Constants.serverPort, timeout));
+            futures.add(ipIsOpen(es, ip.toString(), Constants.SERVER_PORT, timeout));
             ip.increment();
         }
 
         es.shutdown();
         int openPorts = 0;
-        for (final Future<IpCheckerContext> f : futures) {
+        for (final Future<Server> f : futures) {
             try {
                 if (f.get().isOpened()) {
                     openPorts++;
@@ -133,7 +134,7 @@ public class ServerScannerService extends IntentService {
         return serverIpsList;
     }
 
-    public static Future<IpCheckerContext> ipIsOpen(final ExecutorService es, final String ip, final int port, final int timeout) {
+    public static Future<Server> ipIsOpen(final ExecutorService es, final String ip, final int port, final int timeout) {
 
         //Log.v(TAG, "Checking if ip is open: " + ip + ":" + port);
 

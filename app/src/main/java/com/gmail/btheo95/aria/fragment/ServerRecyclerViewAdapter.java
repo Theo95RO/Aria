@@ -1,13 +1,16 @@
 package com.gmail.btheo95.aria.fragment;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.gmail.btheo95.aria.R;
 import com.gmail.btheo95.aria.model.IpCheckerContext;
+import com.gmail.btheo95.aria.model.Server;
 
 import java.util.List;
 
@@ -21,11 +24,16 @@ import java.util.List;
 
 public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecyclerViewAdapter.ViewHolder> {
 
-    private final List<IpCheckerContext> mValues;
+    private static final String TAG = ServerRecyclerViewAdapter.class.getSimpleName();
+    private final List<Server> mValues;
+
+    private static RadioButton lastChecked = null;
+    private static int lastCheckedPosition = 0;
+
 //    private final OnListFragmentInteractionListener mListener;
 
 //    public ServerRecyclerViewAdapter(List<IpCheckerContext> items, OnListFragmentInteractionListener listener) {
-    public ServerRecyclerViewAdapter(List<IpCheckerContext> items) {
+    public ServerRecyclerViewAdapter(List<Server> items) {
         mValues = items;
 //        mListener = listener;
     }
@@ -38,7 +46,7 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = mValues.get(position);
         holder.mServerIp.setText(mValues.get(position).getIp());
         holder.mServerName.setText(mValues.get(position).getDeviceName());
@@ -46,6 +54,34 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (position == lastCheckedPosition) {
+                    return;
+                }
+
+                if (lastChecked != null) {
+                    lastChecked.setChecked(false);
+                }
+
+                holder.mRadioButton.setChecked(true);
+                lastChecked = holder.mRadioButton;
+                lastCheckedPosition = position;
+
+
+//                for (int i = 0 ; i < mValues.size() ; i++) {
+//                    if( i == position ) {
+//                        holder.mRadioButton.setChecked(true);
+//                    }
+//                    else {
+////                        holder.
+//                        //holder.mRadioButton.setChecked(false);
+//                    }
+//                }
+
+
+                Log.v(TAG, "Clicked on server number: " + position);
+
+                // TODO: Sa implementez listenerul ?
 //                if (null != mListener) {
 //                    // Notify the active callbacks interface (the activity, if the
 //                    // fragment is attached to one) that an item has been selected.
@@ -64,13 +100,15 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
         public final View mView;
         public final TextView mServerIp;
         public final TextView mServerName;
-        public IpCheckerContext mItem;
+        public final RadioButton mRadioButton;
+        public Server mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mServerIp = (TextView) view.findViewById(R.id.serverIp);
-            mServerName = (TextView) view.findViewById(R.id.serverIp);
+            mServerName = (TextView) view.findViewById(R.id.serverName);
+            mRadioButton = (RadioButton) view.findViewById(R.id.serverRadioButton);
         }
 
     }

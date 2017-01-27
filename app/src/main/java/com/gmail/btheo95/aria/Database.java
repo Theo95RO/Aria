@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.gmail.btheo95.aria.model.Server;
+
 import java.io.File;
 import java.util.Date;
 
@@ -18,17 +20,25 @@ public class Database extends SQLiteOpenHelper {
 
     private static final String TAG = Database.class.getSimpleName();
 
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "ariadb.db";
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "ariadb.db";
 
-    public static final String PICTURES_TABLE = "pictures_table";
-    public static final String PICTURES_TABLE_PATH = "path";
-    public static final String PICTURES_TABLE_ID = "id";
+    private static final String PICTURES_TABLE = "pictures_table";
+    private static final String PICTURES_TABLE_PATH = "path";
+    private static final String PICTURES_TABLE_ID = "id";
 
 
-    public static final String DATE_TABLE = "date_table";
-    public static final String DATE_TABLE_DATE_COLUMN = "date";
-    public static final String DATE_TABLE_DATE_ID = "id";
+    private static final String DATE_TABLE = "date_table";
+    private static final String DATE_TABLE_DATE_COLUMN = "date";
+    private static final String DATE_TABLE_DATE_ID = "id";
+
+    private static final String SERVER_TABLE = "server_table";
+    private static final String SERVER_TABLE_IP = "ip";
+    private static final String SERVER_TABLE_PORT = "port";
+    private static final String SERVER_TABLE_NAME = "name";
+    private static final String SERVER_TABLE_MAC = "mac";
+    private static final String SERVER_TABLE_ID = "id";
+    private static final String SERVER_TABLE_IS_OPENED = "is_opened";
 
     private Context context;
 
@@ -58,12 +68,70 @@ public class Database extends SQLiteOpenHelper {
                 " (" + PICTURES_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + PICTURES_TABLE_PATH + " TEXT)");
 
+        sqLiteDatabase.execSQL("create table" + SERVER_TABLE +
+                " (" + SERVER_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                SERVER_TABLE_NAME + " TEXT, " +
+                SERVER_TABLE_IP + " TEXT, " +
+                SERVER_TABLE_PORT + " TEXT, " +
+                SERVER_TABLE_MAC + " TEXT, " +
+                SERVER_TABLE_IS_OPENED + " INTEGER)");
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         Log.v(TAG, "Database.onUpgrade()");
 
+    }
+
+    public void setServer(Server server) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(SERVER_TABLE, SERVER_TABLE_ID + " > ?",new String[] {"1"});
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(SERVER_TABLE_NAME, server.getDeviceName());
+        contentValues.put(SERVER_TABLE_IP, server.getIp());
+        contentValues.put(SERVER_TABLE_PORT, server.getPort());
+        contentValues.put(SERVER_TABLE_MAC, server.getMacAdress());
+        contentValues.put(SERVER_TABLE_IS_OPENED, server.isOpened());
+        db.insert(SERVER_TABLE,null ,contentValues);
+
+    }
+
+    public Server getServer() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery("select * from "+ SERVER_TABLE, null);
+
+        if (cursor.moveToFirst()) {
+            int nameColumnIndex = cursor.getColumnIndex(SERVER_TABLE_NAME);
+            int ipColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IP);
+            int portColumnIndex = cursor.getColumnIndex(SERVER_TABLE_PORT);
+            int macColumnIndex = cursor.getColumnIndex(SERVER_TABLE_MAC);
+            int isOpenedColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IS_OPENED);
+
+            String ip = cursor.getString(ipColumnIndex);
+            int port = cursor.getInt(portColumnIndex);
+            String deviceName = cursor.getString(nameColumnIndex);
+            boolean isOpened = getBooleanFromShort(cursor.getShort(isOpenedColumnIndex));
+            String macAdress = cursor.getString(macColumnIndex);
+
+            return new Server(ip, port, deviceName, isOpened, macAdress);
+        }
+        else {
+            return null;
+        }
+
+    }
+
+    private boolean getBooleanFromShort(short aShort) {
+        if (aShort == 0) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
 
@@ -136,12 +204,12 @@ public class Database extends SQLiteOpenHelper {
                 null, null, null);
         //db.rawQuery("select * from " + DATE_TABLE, )
 
-        int dateColumnIdex = cursor.getColumnIndex(DATE_TABLE_DATE_COLUMN);
+        int dateColumnIndex = cursor.getColumnIndex(DATE_TABLE_DATE_COLUMN);
 
 
         if (cursor.moveToFirst()) {
-            int dateInt = cursor.getInt(dateColumnIdex);
-            Date date = new Date(cursor.getInt(dateColumnIdex));
+            int dateInt = cursor.getInt(dateColumnIndex);
+            Date date = new Date(cursor.getInt(dateColumnIndex));
             return date;
         }
         else {

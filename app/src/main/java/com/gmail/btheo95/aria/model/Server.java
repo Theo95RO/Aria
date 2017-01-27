@@ -1,10 +1,10 @@
 package com.gmail.btheo95.aria.model;
 
 /**
- * Created by btheo on 09.11.2016.
+ * Created by btheo on 25.01.2017.
  */
 
-public class IpCheckerContext {
+public class Server {
 
     private String ip;
     private int port;
@@ -16,7 +16,7 @@ public class IpCheckerContext {
 //
 //    }
 
-    public IpCheckerContext(String ip, int port, String deviceName, boolean isOpened, String macAdress) {
+    public Server(String ip, int port, String deviceName, boolean isOpened, String macAdress) {
         this.ip = ip;
         this.port = port;
         this.deviceName = deviceName;

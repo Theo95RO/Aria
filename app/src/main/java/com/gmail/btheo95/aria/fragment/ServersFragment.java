@@ -6,13 +6,15 @@ import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.gmail.btheo95.aria.R;
-import com.gmail.btheo95.aria.fragment.dummy.DummyContent.DummyItem;
 import com.gmail.btheo95.aria.model.IpCheckerContext;
+import com.gmail.btheo95.aria.model.Server;
+import com.gmail.btheo95.aria.utils.Network;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.List;
  * interface.
  */
 public class ServersFragment extends Fragment {
+
+    private static final String TAG = ServersFragment.class.getSimpleName();
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -65,7 +69,10 @@ public class ServersFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+//        inflater.inflate(R.layout.fragment_servers_above, container, false);
         View view = inflater.inflate(R.layout.fragment_servers_list, container, false);
+
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -77,10 +84,23 @@ public class ServersFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            List<IpCheckerContext> testList = new ArrayList<>();
-            IpCheckerContext ipc1 = new IpCheckerContext("100.5", 1, "nume", true);
-            testList.add(ipc1);
-            recyclerView.setAdapter(new ServerRecyclerViewAdapter(testList));
+//            List<Server> testList = new ArrayList<>();
+//            Server ipc1 = new Server("100.5", 1, "nume", true, "mac adress");
+//            Server ipc2 = new Server("222.5", 1, "nume2", true, "mac adress");
+//            Server ipc3 = new Server("333.5", 1, "nume3", true, "mac adress");
+//            testList.add(ipc1);
+//            testList.add(ipc2);
+//            testList.add(ipc3);
+
+
+
+
+
+            Log.d(TAG, "started searching for servers");
+            List<Server> testList2 = Network.getLocalServersList(getActivity());
+            Log.d(TAG, "stopped searching for servers");
+
+            recyclerView.setAdapter(new ServerRecyclerViewAdapter(testList2));
 //            recyclerView.setAdapter(new ServerRecyclerViewAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
@@ -117,6 +137,6 @@ public class ServersFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Server item);
     }
 }
