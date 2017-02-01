@@ -2,6 +2,7 @@ package com.gmail.btheo95.aria.model;
 
 import android.util.Log;
 
+import com.gmail.btheo95.aria.utils.HttpRequest;
 import com.gmail.btheo95.aria.utils.Network;
 
 import java.io.IOException;
@@ -19,13 +20,13 @@ public class IpChecker implements Callable<Server>{
 
     private final static String TAG = IpChecker.class.getSimpleName();
     private String ip;
-    private int port;
+    private String port;
     private String deviceName;
     private String macAdress;
     private boolean isOpened = false;
     private int timeout;
 
-    public IpChecker(String ip, int port, int timeout){
+    public IpChecker(String ip, String port, int timeout){
         this.ip = ip;
         this.port = port;
         this.timeout = timeout;
@@ -40,10 +41,8 @@ public class IpChecker implements Callable<Server>{
             Log.v(TAG, "ip is opened:" + ip + ":" + port);
             urlConnection.disconnect();
 
-            // TODO: sa incerc conexiunea doar prin linia de jos si saii prind eraorea ei
-            InetAddress address = InetAddress.getByName(ip);
-            deviceName = address.getCanonicalHostName();
-            macAdress = Network.getMacAdressFromIp(ip);
+            deviceName = HttpRequest.getHostName(ip, port);
+            macAdress = HttpRequest.getHostMAC(ip, port);
             isOpened = true;
         } catch (MalformedURLException e) {
             Log.v(TAG, "ip is closed(MalformedURLException): " + ip + ":" + port);
@@ -59,7 +58,7 @@ public class IpChecker implements Callable<Server>{
         return ip;
     }
 
-    public int getPort() {
+    public String getPort() {
         return port;
     }
 

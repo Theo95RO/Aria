@@ -3,6 +3,7 @@ package com.gmail.btheo95.aria.utils;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.util.Pair;
 
 import com.gmail.btheo95.aria.Constants;
 import com.gmail.btheo95.aria.model.IPv4;
@@ -10,9 +11,17 @@ import com.gmail.btheo95.aria.model.IpChecker;
 import com.gmail.btheo95.aria.model.IpCheckerContext;
 import com.gmail.btheo95.aria.model.Server;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +117,55 @@ public class Network {
 
         Log.i(TAG, "Number of servers found: " + openPorts);
         return serverIpsList;
+    }
+
+    public static Pair<Integer, String> httpRequest (String url, String requestMethod, boolean doInput, boolean doOutput, String output) throws IOException {
+
+        URL obj = new URL(url);
+
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        con.setRequestMethod(requestMethod);
+
+        con.setDoOutput(doOutput);
+        con.setDoInput(doInput);
+
+        if(doOutput && output != null){
+            setOutputStreamContent(con.getOutputStream(), output);
+            con.getOutputStream().close();
+        }
+        int responseCode = con.getResponseCode();
+//		System.out.println("\nSending 'GET' request to URL : " + url);
+//		System.out.println("Response Code : " + responseCode);
+
+
+        String response = "";
+        if(doInput){
+            response = getInputStreamContent(con.getInputStream());
+            con.getInputStream().close();
+        }
+
+
+        return new Pair<Integer, String>(responseCode, response);
+    }
+
+    private static String getInputStreamContent (InputStream inputStream) throws IOException{
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(inputStream));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+
+        return response.toString();
+    }
+
+    private static void setOutputStreamContent(OutputStream outputStream, String output) throws IOException {
+        DataOutputStream wr = new DataOutputStream(outputStream);
+        wr.writeBytes(output);
+        wr.flush();
     }
 
 }

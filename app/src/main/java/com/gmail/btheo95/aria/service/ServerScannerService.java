@@ -134,7 +134,7 @@ public class ServerScannerService extends IntentService {
         return serverIpsList;
     }
 
-    public static Future<Server> ipIsOpen(final ExecutorService es, final String ip, final int port, final int timeout) {
+    public static Future<Server> ipIsOpen(final ExecutorService es, final String ip, final String port, final int timeout) {
 
         //Log.v(TAG, "Checking if ip is open: " + ip + ":" + port);
 

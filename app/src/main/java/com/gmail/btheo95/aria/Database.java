@@ -68,7 +68,7 @@ public class Database extends SQLiteOpenHelper {
                 " (" + PICTURES_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + PICTURES_TABLE_PATH + " TEXT)");
 
-        sqLiteDatabase.execSQL("create table" + SERVER_TABLE +
+        sqLiteDatabase.execSQL("create table " + SERVER_TABLE +
                 " (" + SERVER_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 SERVER_TABLE_NAME + " TEXT, " +
                 SERVER_TABLE_IP + " TEXT, " +
@@ -112,7 +112,7 @@ public class Database extends SQLiteOpenHelper {
             int isOpenedColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IS_OPENED);
 
             String ip = cursor.getString(ipColumnIndex);
-            int port = cursor.getInt(portColumnIndex);
+            String port = cursor.getString(portColumnIndex);
             String deviceName = cursor.getString(nameColumnIndex);
             boolean isOpened = getBooleanFromShort(cursor.getShort(isOpenedColumnIndex));
             String macAdress = cursor.getString(macColumnIndex);

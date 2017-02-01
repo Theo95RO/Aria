@@ -26,6 +26,7 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
 
     private static final String TAG = ServerRecyclerViewAdapter.class.getSimpleName();
     private final List<Server> mValues;
+    private Server mDefaultServer;
 
     private static RadioButton lastChecked = null;
     private static int lastCheckedPosition = 0;
@@ -33,8 +34,9 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
 //    private final OnListFragmentInteractionListener mListener;
 
 //    public ServerRecyclerViewAdapter(List<IpCheckerContext> items, OnListFragmentInteractionListener listener) {
-    public ServerRecyclerViewAdapter(List<Server> items) {
+    public ServerRecyclerViewAdapter(List<Server> items, Server defaultServer) {
         mValues = items;
+        mDefaultServer = defaultServer;
 //        mListener = listener;
     }
 
@@ -51,6 +53,12 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
         holder.mServerIp.setText(mValues.get(position).getIp());
         holder.mServerName.setText(mValues.get(position).getDeviceName());
 
+        if (mDefaultServer != null && mDefaultServer.equals(mValues.get(position))) {
+            holder.mRadioButton.setChecked(true);
+            lastChecked = holder.mRadioButton;
+            lastCheckedPosition = position;
+        }
+
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,18 +74,6 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
                 holder.mRadioButton.setChecked(true);
                 lastChecked = holder.mRadioButton;
                 lastCheckedPosition = position;
-
-
-//                for (int i = 0 ; i < mValues.size() ; i++) {
-//                    if( i == position ) {
-//                        holder.mRadioButton.setChecked(true);
-//                    }
-//                    else {
-////                        holder.
-//                        //holder.mRadioButton.setChecked(false);
-//                    }
-//                }
-
 
                 Log.v(TAG, "Clicked on server number: " + position);
 
@@ -111,5 +107,9 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
             mRadioButton = (RadioButton) view.findViewById(R.id.serverRadioButton);
         }
 
+    }
+
+    public void setmDefaultServer(Server server) {
+        mDefaultServer = server;
     }
 }

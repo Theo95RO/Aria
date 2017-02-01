@@ -23,7 +23,7 @@
     <string name="uploadVideosPreferenceSummary">Upload videos to your PC</string>
     <string name="deleteAfterUploadPreferenceSummary">The content will be deleted locally after upload</string>
     <string name="uploadPhotosPreferenceSummary">Upload photos to your PC</string>
-    <string name="showNotificationPreferenceSummary">Show botifications while uploading</string>
+    <string name="showNotificationPreferenceSummary">Show notifications while uploading</string>
     <string name="upload_settings">Upload</string>
 
     <!--Strings related to navigation drawer-->
@@ -36,8 +36,6 @@
     <!-- Strings related to Intro -->
     <string name="intro_1_title">Welcome to Aria</string>
     <string name="intro_1_description">This app helps you to automatically backup your photos to your PC</string>
-    <!--<string name="intro_2_title">Server Download</string>-->
-    <!--<string name="intro_2_description">In order for this app to work, you need to download the server for the PC. Click the button bellow to copy the download URL to clipboard.</string>-->
     <string name="intro_2_title">test.ro</string>
     <string name="intro_2_description">Access this URL from your PC to donwload the server</string>
     <string name="intro_3_title">Permissions</string>
@@ -45,8 +43,12 @@
     <string name="button_download_link_text">Copy URL</string>
     <string name="toast_after_button_download_click">URL Copied to clipboard</string>
     <string name="URL_download">http://test.ro</string>
+
     <!--Strings related to FAB Intro Prompt-->
     <string name="fab_prompt_primary_text">Upload a custom file</string>
     <string name="fab_prompt_secondary_text">Tap the button to upload to your PC a specific file from your device.</string>
 
+    <!--Strings related to Servers fragment-->
+    <string name="loading_text"><b>Loading...</b></string>
+    <string name="servers"><b>Servers</b></string>
 </resources>

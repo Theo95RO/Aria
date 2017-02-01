@@ -7,7 +7,7 @@ package com.gmail.btheo95.aria.model;
 public class Server {
 
     private String ip;
-    private int port;
+    private String port;
     private String deviceName;
     private boolean isOpened = false;
     private String macAdress;
@@ -16,7 +16,7 @@ public class Server {
 //
 //    }
 
-    public Server(String ip, int port, String deviceName, boolean isOpened, String macAdress) {
+    public Server(String ip, String port, String deviceName, boolean isOpened, String macAdress) {
         this.ip = ip;
         this.port = port;
         this.deviceName = deviceName;
@@ -28,7 +28,7 @@ public class Server {
         return ip;
     }
 
-    public int getPort() {
+    public String getPort() {
         return port;
     }
 
@@ -42,5 +42,17 @@ public class Server {
 
     public String getMacAdress() {
         return macAdress;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Server server = (Server) o;
+
+        if (port != null ? !port.equals(server.port) : server.port != null) return false;
+        return macAdress != null ? macAdress.equals(server.macAdress) : server.macAdress == null;
+
     }
 }
