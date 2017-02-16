@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
     private NavigationView navigationView;
     private int currentNavigationItemId;
+    private int mLastNavigationImtemId = -1;
 
     public static final String PREF_KEY_FIRST_START = "com.gmail.btheo95.aria.PREF_KEY_FIRST_START";
     public static final int REQUEST_CODE_INTRO = 1;
@@ -68,7 +69,6 @@ public class MainActivity extends AppCompatActivity
                 super.onDrawerSlide(drawerView, 0);
             }
         };
-
         currentNavigationItemId = R.id.nav_status;
         toggle.syncState();
 
@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (currentNavigationItemId == R.id.nav_about) {
+            setFragmentByNavigationItemId(mLastNavigationImtemId, R.animator.fade_in, R.animator.fade_out);
         } else {
             super.onBackPressed();
         }
@@ -134,25 +136,25 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        setFragmentByNavigationItemId(id, R.animator.slide_in_right, R.animator.slide_out_left);
 
-
-        if (currentNavigationItemId != id) {
-            currentNavigationItemId = id;
-            if (id == R.id.nav_settings) {
-                setMainFragment(SettingsFragment.newInstance());
-                fab.hide();
-
-            } else if (id == R.id.nav_status) {
-                setMainFragment(StatusFragment.newInstance());
-                fab.show();
-            } else if (id == R.id.nav_servers) {
-                setMainFragment(ServersFragment.newInstance());
-                fab.show();
-            } else if (id == R.id.nav_about) {
-                setMainFragment(AboutFragment.newInstance());
-                fab.hide();
-            }
-        }
+//        if (currentNavigationItemId != id) {
+//            currentNavigationItemId = id;
+//            if (id == R.id.nav_settings) {
+//                setMainFragment(SettingsFragment.newInstance());
+//                fab.hide();
+//
+//            } else if (id == R.id.nav_status) {
+//                setMainFragment(StatusFragment.newInstance());
+//                fab.show();
+//            } else if (id == R.id.nav_servers) {
+//                setMainFragment(ServersFragment.newInstance());
+//                fab.show();
+//            } else if (id == R.id.nav_about) {
+//                setMainFragment(AboutFragment.newInstance());
+//                fab.hide();
+//            }
+//        }
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -160,6 +162,29 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private void setFragmentByNavigationItemId(int id, Integer idOfInAnimation, Integer idOfOutAnimation) {
+
+        if (currentNavigationItemId != id) {
+            mLastNavigationImtemId = currentNavigationItemId;
+            currentNavigationItemId = id;
+            Fragment fragment = null;
+            if (id == R.id.nav_settings) {
+                fragment = SettingsFragment.newInstance();
+                fab.hide();
+
+            } else if (id == R.id.nav_status) {
+                fragment = StatusFragment.newInstance();
+                fab.show();
+            } else if (id == R.id.nav_servers) {
+                fragment = ServersFragment.newInstance();
+                fab.show();
+            } else if (id == R.id.nav_about) {
+                fragment = AboutFragment.newInstance();
+                fab.hide();
+            }
+            setMainFragment(fragment, idOfInAnimation, idOfOutAnimation);
+        }
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult() -> resultCode = " + resultCode + " requestCode = " + requestCode);
@@ -184,7 +209,7 @@ public class MainActivity extends AppCompatActivity
         } else if (requestCode == REQUEST_CODE_INTRO) {
             if (resultCode == RESULT_OK) {
                 // TODO: upload the file.
-                Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG);
+                Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG).show();
             }
         }
 
@@ -203,7 +228,9 @@ public class MainActivity extends AppCompatActivity
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        currentNavigationItemId = savedInstanceState.getInt("currentNavigationItemId");
+        int id = savedInstanceState.getInt("currentNavigationItemId");
+        setFragmentByNavigationItemId(id, null, null);
+        /*
         if (currentNavigationItemId == R.id.nav_settings) {
             setMainFragmentWithoutAnimation(SettingsFragment.newInstance());
             fab.hide();
@@ -217,7 +244,7 @@ public class MainActivity extends AppCompatActivity
         } else if (currentNavigationItemId == R.id.nav_about) {
             setMainFragmentWithoutAnimation(AboutFragment.newInstance());
             fab.hide();
-        }
+        }*/
     }
 
     private void setTargetPromptForFAB() {
@@ -282,18 +309,32 @@ public class MainActivity extends AppCompatActivity
 //                });
     }
 
-    private void setMainFragment(Fragment fragment) {
+    private void setMainFragment(Fragment fragment, Integer idOfInAnimation, Integer idOfOutAnimation) {
+
+        if (null == fragment) {
+            return;
+        }
+
         FragmentTransaction fragmentTransaction =
                 getFragmentManager().beginTransaction();
 
-
-        fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+        if (null != idOfInAnimation && null != idOfOutAnimation) {
+            fragmentTransaction.setCustomAnimations(idOfInAnimation, idOfOutAnimation);
+        }
 
         fragmentTransaction.replace(R.id.content_main, fragment);
         fragmentTransaction.commit();
     }
 
+    private void setMainFragmentWithFadeAnimation(Fragment fragment) {
+        FragmentTransaction fragmentTransaction =
+                getFragmentManager().beginTransaction();
 
+        fragmentTransaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
+        fragmentTransaction.replace(R.id.content_main, fragment);
+
+        fragmentTransaction.commit();
+    }
     private void setMainFragmentWithoutAnimation(Fragment fragment) {
         FragmentTransaction fragmentTransaction =
                 getFragmentManager().beginTransaction();
