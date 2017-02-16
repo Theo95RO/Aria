@@ -10,18 +10,14 @@ public class Server {
     private String port;
     private String deviceName;
     private boolean isOpened = false;
-    private String macAdress;
+    private String macAddress;
 
-//    public IpCheckerContext(String ip, int port) {
-//
-//    }
-
-    public Server(String ip, String port, String deviceName, boolean isOpened, String macAdress) {
+    public Server(String ip, String port, String deviceName, boolean isOpened, String macAddress) {
         this.ip = ip;
         this.port = port;
         this.deviceName = deviceName;
         this.isOpened = isOpened;
-        this.macAdress = macAdress;
+        this.macAddress = macAddress;
     }
 
     public String getIp() {
@@ -40,8 +36,8 @@ public class Server {
         return isOpened;
     }
 
-    public String getMacAdress() {
-        return macAdress;
+    public String getMacAddress() {
+        return macAddress;
     }
 
     @Override
@@ -52,7 +48,7 @@ public class Server {
         Server server = (Server) o;
 
         if (port != null ? !port.equals(server.port) : server.port != null) return false;
-        return macAdress != null ? macAdress.equals(server.macAdress) : server.macAdress == null;
+        return macAddress != null ? macAddress.equals(server.macAddress) : server.macAddress == null;
 
     }
 }

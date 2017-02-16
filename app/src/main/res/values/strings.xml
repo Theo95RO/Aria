@@ -30,7 +30,7 @@
     <string name="nav_settings">Settings</string>
     <string name="nav_status">Status</string>
     <string name="nav_servers">Servers</string>
-
+    <string name="nav_about">About &amp; Contact</string>
 
 
     <!-- Strings related to Intro -->
@@ -39,7 +39,7 @@
     <string name="intro_2_title">test.ro</string>
     <string name="intro_2_description">Access this URL from your PC to donwload the server</string>
     <string name="intro_3_title">Permissions</string>
-    <string name="intro_3_description">In order for this app to work, you need to grand the permissions. /"Write External Storage/" is needed for the app to search for photos. /"Read Phone State/" is needed for the server to identify your device.</string>
+    <string name="intro_3_description">In order for this app to work, you need to grand the permissions. \"Write External Storage\" is needed for the app to search for photos. \"Read Phone State\" is needed for the server to identify your device.</string>
     <string name="button_download_link_text">Copy URL</string>
     <string name="toast_after_button_download_click">URL Copied to clipboard</string>
     <string name="URL_download">http://test.ro</string>
@@ -51,4 +51,13 @@
     <!--Strings related to Servers fragment-->
     <string name="loading_text"><b>Loading...</b></string>
     <string name="servers"><b>Servers</b></string>
+
+    <!--Strings realted to about fragment-->
+    <string name="about_version">Version 0.1</string>
+    <string name="about_connect_with_us_section">Connect with us</string>
+    <string name="about_copyright_section">Copyright &amp; License</string>
+    <string name="about_copyright">Constantin Bogdan-Theodor © %1$d</string>
+    <string name="about_license">Read license</string>
+    <string name="about_description">%1$s is an app that helps you to automatically back-up your photos and videos to your PC when you connect to your local wi-fi. It also helps you to upload custom files, picked up by you so you don\'t have to plug-in your data cable.</string>
+
 </resources>

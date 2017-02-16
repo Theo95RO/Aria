@@ -61,7 +61,7 @@ public class Database extends SQLiteOpenHelper {
         //SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(DATE_TABLE_DATE_COLUMN, 1);
-        sqLiteDatabase.insert(DATE_TABLE,null ,contentValues);
+        sqLiteDatabase.insert(DATE_TABLE, null, contentValues);
 
 
         sqLiteDatabase.execSQL("create table " + PICTURES_TABLE +
@@ -81,55 +81,55 @@ public class Database extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         Log.v(TAG, "Database.onUpgrade()");
-
     }
 
     public void setServer(Server server) {
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(SERVER_TABLE, SERVER_TABLE_ID + " > ?",new String[] {"1"});
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
 
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(SERVER_TABLE_NAME, server.getDeviceName());
-        contentValues.put(SERVER_TABLE_IP, server.getIp());
-        contentValues.put(SERVER_TABLE_PORT, server.getPort());
-        contentValues.put(SERVER_TABLE_MAC, server.getMacAdress());
-        contentValues.put(SERVER_TABLE_IS_OPENED, server.isOpened());
-        db.insert(SERVER_TABLE,null ,contentValues);
+            db.delete(SERVER_TABLE, SERVER_TABLE_ID + " > ?", new String[]{"0"});
 
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(SERVER_TABLE_NAME, server.getDeviceName());
+            contentValues.put(SERVER_TABLE_IP, server.getIp());
+            contentValues.put(SERVER_TABLE_PORT, server.getPort());
+            contentValues.put(SERVER_TABLE_MAC, server.getMacAddress());
+            contentValues.put(SERVER_TABLE_IS_OPENED, server.isOpened());
+
+            db.insert(SERVER_TABLE, null, contentValues);
+        }
     }
 
     public Server getServer() {
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        Cursor cursor = db.rawQuery("select * from "+ SERVER_TABLE, null);
+        try (SQLiteDatabase db = this.getWritableDatabase();
+             Cursor cursor = db.rawQuery("select * from " + SERVER_TABLE, null)) {
 
-        if (cursor.moveToFirst()) {
-            int nameColumnIndex = cursor.getColumnIndex(SERVER_TABLE_NAME);
-            int ipColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IP);
-            int portColumnIndex = cursor.getColumnIndex(SERVER_TABLE_PORT);
-            int macColumnIndex = cursor.getColumnIndex(SERVER_TABLE_MAC);
-            int isOpenedColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IS_OPENED);
+            if (cursor.moveToFirst()) {
+                int nameColumnIndex = cursor.getColumnIndex(SERVER_TABLE_NAME);
+                int ipColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IP);
+                int portColumnIndex = cursor.getColumnIndex(SERVER_TABLE_PORT);
+                int macColumnIndex = cursor.getColumnIndex(SERVER_TABLE_MAC);
+                int isOpenedColumnIndex = cursor.getColumnIndex(SERVER_TABLE_IS_OPENED);
 
-            String ip = cursor.getString(ipColumnIndex);
-            String port = cursor.getString(portColumnIndex);
-            String deviceName = cursor.getString(nameColumnIndex);
-            boolean isOpened = getBooleanFromShort(cursor.getShort(isOpenedColumnIndex));
-            String macAdress = cursor.getString(macColumnIndex);
+                String ip = cursor.getString(ipColumnIndex);
+                String port = cursor.getString(portColumnIndex);
+                String deviceName = cursor.getString(nameColumnIndex);
+                boolean isOpened = getBooleanFromShort(cursor.getShort(isOpenedColumnIndex));
+                String macAddress = cursor.getString(macColumnIndex);
 
-            return new Server(ip, port, deviceName, isOpened, macAdress);
+                return new Server(ip, port, deviceName, isOpened, macAddress);
+
+            } else {
+                return null;
+            }
         }
-        else {
-            return null;
-        }
-
     }
 
     private boolean getBooleanFromShort(short aShort) {
         if (aShort == 0) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -143,7 +143,7 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(PICTURES_TABLE_PATH, file.getPath());
-        db.insert(PICTURES_TABLE,null ,contentValues);
+        db.insert(PICTURES_TABLE, null, contentValues);
     }
 
     public void addFiles(File[] files) {
@@ -155,7 +155,7 @@ public class Database extends SQLiteOpenHelper {
 
     public void removeFile(File file) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(PICTURES_TABLE, PICTURES_TABLE_PATH + " = ?",new String[] {file.getPath()});
+        db.delete(PICTURES_TABLE, PICTURES_TABLE_PATH + " = ?", new String[]{file.getPath()});
     }
 
     public void removeFiles(File[] files) {
@@ -172,47 +172,46 @@ public class Database extends SQLiteOpenHelper {
         String id = "1"; //TODO: sa fac cate o data pentru fiecare server
         contentValues.put(DATE_TABLE_DATE_ID, 1);
         contentValues.put(DATE_TABLE_DATE_COLUMN, currentDate.getTime());
-        db.update(DATE_TABLE, contentValues, "ID = ?",new String[] { id });
+        db.update(DATE_TABLE, contentValues, "ID = ?", new String[]{id});
 
     }
 
     public File[] getAllPhotos() {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from "+PICTURES_TABLE,null);
+        Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from " + PICTURES_TABLE, null);
 
-        int pathColumnIdex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
+        int pathColumnIndex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
 
         File[] files = new File[cursor.getCount()];
 
         int count = 0;
         while (cursor.moveToNext()) {
-            File file = new File(cursor.getString(pathColumnIdex));
+            File file = new File(cursor.getString(pathColumnIndex));
             files[count++] = file;
         }
 
+        cursor.close();
         return files;
 
     }
-    public Date getLastDate () {
+
+    public Date getLastDate() {
         SQLiteDatabase db = this.getWritableDatabase();
 //        Cursor res = db.rawQuery("select * from "+ DATE_TABLE, null);
         Cursor cursor = db.query(DATE_TABLE,
-                new String[] {DATE_TABLE_DATE_COLUMN},
+                new String[]{DATE_TABLE_DATE_COLUMN},
                 DATE_TABLE_DATE_ID + " = ?",
-                new String[] {"1"},
+                new String[]{"1"},
                 null, null, null);
-        //db.rawQuery("select * from " + DATE_TABLE, )
 
         int dateColumnIndex = cursor.getColumnIndex(DATE_TABLE_DATE_COLUMN);
 
-
         if (cursor.moveToFirst()) {
-            int dateInt = cursor.getInt(dateColumnIndex);
-            Date date = new Date(cursor.getInt(dateColumnIndex));
-            return date;
-        }
-        else {
+            cursor.close();
+            return new Date(cursor.getInt(dateColumnIndex));
+        } else {
+            cursor.close();
             return new Date(1);
         }
 

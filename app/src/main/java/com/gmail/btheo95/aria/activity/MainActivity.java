@@ -1,29 +1,27 @@
 package com.gmail.btheo95.aria.activity;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
 
-import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetSequence;
-import com.getkeepsafe.taptargetview.TapTargetView;
 import com.gmail.btheo95.aria.R;
+import com.gmail.btheo95.aria.fragment.AboutFragment;
 import com.gmail.btheo95.aria.fragment.ServersFragment;
 import com.gmail.btheo95.aria.fragment.SettingsFragment;
 import com.gmail.btheo95.aria.fragment.StatusFragment;
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 //sa nu mai faca animatia toggle-ul
@@ -87,10 +85,9 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intent, REQUEST_CODE_INTRO);
         }
         //Set the fragment initially
-        else{
+        else {
             //if screen did not rotate
             if (savedInstanceState == null) {
-                Log.v(TAG, "TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
                 setMainFragmentWithoutAnimation(StatusFragment.newInstance());
             }
         }
@@ -151,6 +148,9 @@ public class MainActivity extends AppCompatActivity
             } else if (id == R.id.nav_servers) {
                 setMainFragment(ServersFragment.newInstance());
                 fab.show();
+            } else if (id == R.id.nav_about) {
+                setMainFragment(AboutFragment.newInstance());
+                fab.hide();
             }
         }
 
@@ -174,17 +174,14 @@ public class MainActivity extends AppCompatActivity
                 //Set the fragment initially
                 setMainFragmentWithoutAnimation(StatusFragment.newInstance());
                 setTargetPromptForFAB();
-            }
-            else {
+            } else {
                 PreferenceManager.getDefaultSharedPreferences(this).edit()
                         .putBoolean(PREF_KEY_FIRST_START, true)
                         .apply();
                 //User cancelled the intro so we'll finish this activity too.
                 finish();
             }
-        }
-
-        else if (requestCode == REQUEST_CODE_INTRO) {
+        } else if (requestCode == REQUEST_CODE_INTRO) {
             if (resultCode == RESULT_OK) {
                 // TODO: upload the file.
                 Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG);
@@ -196,7 +193,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean("hasRotated" , true);
+        savedInstanceState.putBoolean("hasRotated", true);
         savedInstanceState.putInt("currentNavigationItemId", currentNavigationItemId);
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -217,6 +214,9 @@ public class MainActivity extends AppCompatActivity
         } else if (currentNavigationItemId == R.id.nav_servers) {
             setMainFragmentWithoutAnimation(ServersFragment.newInstance());
             //fab.show();
+        } else if (currentNavigationItemId == R.id.nav_about) {
+            setMainFragmentWithoutAnimation(AboutFragment.newInstance());
+            fab.hide();
         }
     }
 
@@ -228,17 +228,14 @@ public class MainActivity extends AppCompatActivity
                 .setTarget(findViewById(R.id.fab))
                 .setPrimaryText(getString(R.string.fab_prompt_primary_text))
                 .setSecondaryText(getString(R.string.fab_prompt_secondary_text))
-                .setOnHidePromptListener(new MaterialTapTargetPrompt.OnHidePromptListener()
-                {
+                .setOnHidePromptListener(new MaterialTapTargetPrompt.OnHidePromptListener() {
                     @Override
-                    public void onHidePrompt(MotionEvent event, boolean tappedTarget)
-                    {
+                    public void onHidePrompt(MotionEvent event, boolean tappedTarget) {
                         //Do something such as storing a value so that this prompt is never shown again
                     }
 
                     @Override
-                    public void onHidePromptComplete()
-                    {
+                    public void onHidePromptComplete() {
 
                     }
                 })
@@ -305,7 +302,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.commit();
     }
 
-    private void startPickFileActivity(){
+    private void startPickFileActivity() {
         Log.d(TAG, "startPickFileActivity()");
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
