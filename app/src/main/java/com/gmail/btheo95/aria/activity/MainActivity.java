@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.gmail.btheo95.aria.R;
 import com.gmail.btheo95.aria.fragment.AboutFragment;
+import com.gmail.btheo95.aria.fragment.LicenseFragment;
 import com.gmail.btheo95.aria.fragment.ServersFragment;
 import com.gmail.btheo95.aria.fragment.SettingsFragment;
 import com.gmail.btheo95.aria.fragment.StatusFragment;
@@ -29,16 +30,18 @@ import com.gmail.btheo95.aria.fragment.StatusFragment;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AboutFragment.OnFragmentInteractionListener {
 
     private static String TAG = MainActivity.class.getSimpleName();
 
     private FloatingActionButton fab;
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
+
     private NavigationView navigationView;
     private int currentNavigationItemId;
-    private int mLastNavigationImtemId = -1;
+    private int mLastNavigationItemId = -1;
+    private boolean mShouldShowArrow = false;
 
     public static final String PREF_KEY_FIRST_START = "com.gmail.btheo95.aria.PREF_KEY_FIRST_START";
     public static final int REQUEST_CODE_INTRO = 1;
@@ -66,7 +69,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 //sa nu mai faca animatia toggle-ul
-                super.onDrawerSlide(drawerView, 0);
+                if (mShouldShowArrow) {
+                    super.onDrawerSlide(drawerView, slideOffset);
+                } else {
+                    super.onDrawerSlide(drawerView, 0);
+                }
             }
         };
         currentNavigationItemId = R.id.nav_status;
@@ -101,7 +108,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (currentNavigationItemId == R.id.nav_about) {
-            setFragmentByNavigationItemId(mLastNavigationImtemId, R.animator.fade_in, R.animator.fade_out);
+            setFragmentByNavigationItemId(mLastNavigationItemId, R.animator.fade_in, R.animator.fade_out);
         } else {
             super.onBackPressed();
         }
@@ -165,7 +172,7 @@ public class MainActivity extends AppCompatActivity
     private void setFragmentByNavigationItemId(int id, Integer idOfInAnimation, Integer idOfOutAnimation) {
 
         if (currentNavigationItemId != id) {
-            mLastNavigationImtemId = currentNavigationItemId;
+            mLastNavigationItemId = currentNavigationItemId;
             currentNavigationItemId = id;
             Fragment fragment = null;
             if (id == R.id.nav_settings) {
@@ -245,6 +252,12 @@ public class MainActivity extends AppCompatActivity
             setMainFragmentWithoutAnimation(AboutFragment.newInstance());
             fab.hide();
         }*/
+    }
+
+    @Override
+    public void onLicenseClicked() {
+        mShouldShowArrow = true;
+        setMainFragmentWithoutAnimation(LicenseFragment.newInstance());
     }
 
     private void setTargetPromptForFAB() {

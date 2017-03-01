@@ -5,9 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.gmail.btheo95.aria.R;
 
@@ -67,39 +64,6 @@ public class SettingsFragment extends PreferenceFragment {
         }
     }
 
-//    public void onCheckboxClicked(View view) {
-//
-//        if(!(view instanceof CheckBox)){
-//            return;
-//        }
-//
-//        CheckBox currentCheckBox = (CheckBox)view;
-//
-//        // Is the view now checked?
-//        boolean checked = currentCheckBox.isChecked();
-//
-//        // Check which checkbox was clicked
-//        switch(view.getId()) {
-//            case R.id.uploadPhotosCheckBox:
-//                if (checked)
-//                // Put some meat on the sandwich
-//                else
-//                // Remove the meat
-//                break;
-//            case R.id.uploadVideosCheckBox:
-//                if (checked)
-//                // Cheese me
-//                else
-//                // I'm lactose intolerant
-//                break;
-//            case R.id.deleteAfterUploadCheckBox5:
-//                if (checked)
-//                // Cheese me
-//                else
-//                // I'm lactose intolerant
-//                break;
-//        }
-//    }
 
     @Override
     public void onDetach() {

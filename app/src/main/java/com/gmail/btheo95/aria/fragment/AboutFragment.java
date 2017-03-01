@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.gmail.btheo95.aria.R;
 
@@ -19,6 +18,7 @@ import mehdi.sakout.aboutpage.Element;
 public class AboutFragment extends Fragment {
 
     private Context mContext;
+    private AboutFragment.OnFragmentInteractionListener mListener;
 
     public AboutFragment() {
         // Required empty public constructor
@@ -61,15 +61,14 @@ public class AboutFragment extends Fragment {
         copyLicenseElement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: new activity with license
-                Toast.makeText(mContext, "License", Toast.LENGTH_LONG).show();
+                mListener.onLicenseClicked();
             }
         });
 
         return copyLicenseElement;
     }
 
-    Element getCopyRightsElement() {
+    private Element getCopyRightsElement() {
 
         Element copyRightsElement = new Element();
 
@@ -77,6 +76,28 @@ public class AboutFragment extends Fragment {
         copyRightsElement.setIcon(R.drawable.ic_copyright_black_24dp);
 
         return copyRightsElement;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface OnFragmentInteractionListener {
+        void onLicenseClicked();
     }
 
 

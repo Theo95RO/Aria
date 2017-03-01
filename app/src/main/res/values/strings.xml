@@ -56,7 +56,7 @@
     <string name="about_version">Version 0.1</string>
     <string name="about_connect_with_us_section">Connect with us</string>
     <string name="about_copyright_section">Copyright &amp; License</string>
-    <string name="about_copyright">Constantin Bogdan-Theodor © %1$d</string>
+    <string name="about_copyright">Constantin Bogdan-Theodor %1$d</string>
     <string name="about_license">Read license</string>
     <string name="about_description">%1$s is an app that helps you to automatically back-up your photos and videos to your PC when you connect to your local wi-fi. It also helps you to upload custom files, picked up by you so you don\'t have to plug-in your data cable.</string>
 

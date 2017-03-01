@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 
 import com.gmail.btheo95.aria.Database;
 import com.gmail.btheo95.aria.R;
+import com.gmail.btheo95.aria.adapter.ServerRecyclerViewAdapter;
 import com.gmail.btheo95.aria.model.Server;
 import com.gmail.btheo95.aria.utils.Network;
 
