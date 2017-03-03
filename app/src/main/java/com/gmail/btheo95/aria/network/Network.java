@@ -1,15 +1,14 @@
-package com.gmail.btheo95.aria.utils;
+package com.gmail.btheo95.aria.network;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.util.Pair;
 
-import com.gmail.btheo95.aria.Constants;
 import com.gmail.btheo95.aria.model.IPv4;
 import com.gmail.btheo95.aria.model.IpChecker;
-import com.gmail.btheo95.aria.model.IpCheckerContext;
 import com.gmail.btheo95.aria.model.Server;
+import com.gmail.btheo95.aria.utils.Constants;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

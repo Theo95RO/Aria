@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".WifiWatcher"
+            android:name=".broadcast.WifiWatcher"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -23,13 +23,6 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name=".service.MyService"
-            android:enabled="true"
-            android:exported="true" />
-        <service
-            android:name=".service.MyIntentService2"
-            android:exported="false" />
         <service
             android:name=".service.ServerScannerService"
             android:exported="false" />

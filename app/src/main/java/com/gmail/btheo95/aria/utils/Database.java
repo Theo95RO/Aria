@@ -1,4 +1,4 @@
-package com.gmail.btheo95.aria;
+package com.gmail.btheo95.aria.utils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,7 +20,7 @@ public class Database extends SQLiteOpenHelper {
 
     private static final String TAG = Database.class.getSimpleName();
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "ariadb.db";
 
     private static final String PICTURES_TABLE = "pictures_table";
@@ -40,6 +40,9 @@ public class Database extends SQLiteOpenHelper {
     private static final String SERVER_TABLE_ID = "id";
     private static final String SERVER_TABLE_IS_OPENED = "is_opened";
 
+    private static final String REMOVED_FILES_COUNT_TABLE = "removed_files_count_table";
+    private static final String REMOVED_FILES_COUNT_TABLE_VALUE = "removed_files_count_table_value";
+
     private Context context;
 
     public Database(Context context) {
@@ -58,10 +61,17 @@ public class Database extends SQLiteOpenHelper {
                 + DATE_TABLE_DATE_COLUMN + " INTEGER)");
 
         //se intializeaza baza de date cu o data
-        //SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(DATE_TABLE_DATE_COLUMN, 1);
         sqLiteDatabase.insert(DATE_TABLE, null, contentValues);
+
+
+        sqLiteDatabase.execSQL("create table " + REMOVED_FILES_COUNT_TABLE +
+                " (" + REMOVED_FILES_COUNT_TABLE_VALUE + " INTEGER)");
+
+        contentValues = new ContentValues();
+        contentValues.put(REMOVED_FILES_COUNT_TABLE_VALUE, 0);
+        sqLiteDatabase.insert(REMOVED_FILES_COUNT_TABLE, null, contentValues);
 
 
         sqLiteDatabase.execSQL("create table " + PICTURES_TABLE +
@@ -80,7 +90,16 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        Log.v(TAG, "Database.onUpgrade()");
+        Log.d(TAG, "Database.onUpgrade()");
+
+        if (oldVersion == 1 && newVersion == 2) {
+            sqLiteDatabase.execSQL("create table " + REMOVED_FILES_COUNT_TABLE +
+                    " (" + REMOVED_FILES_COUNT_TABLE_VALUE + " INTEGER)");
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(REMOVED_FILES_COUNT_TABLE_VALUE, 0);
+            sqLiteDatabase.insert(REMOVED_FILES_COUNT_TABLE, null, contentValues);
+        }
     }
 
     public void setServer(Server server) {
@@ -127,35 +146,61 @@ public class Database extends SQLiteOpenHelper {
     }
 
     private boolean getBooleanFromShort(short aShort) {
-        if (aShort == 0) {
-            return false;
-        } else {
-            return true;
+        return aShort != 0;
+    }
+
+    public int getRemovedFilesCount() {
+        try (SQLiteDatabase db = this.getWritableDatabase();
+             Cursor cursor = db.rawQuery("select * from " + REMOVED_FILES_COUNT_TABLE, null)) {
+
+            if (cursor.moveToFirst()) {
+                int valueColumnIndex = cursor.getColumnIndex(REMOVED_FILES_COUNT_TABLE_VALUE);
+                return cursor.getInt(valueColumnIndex);
+
+            } else {
+                return 0;
+            }
         }
     }
 
+    public int updateRemovedFilesCount(int newCount) {
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(REMOVED_FILES_COUNT_TABLE_VALUE, newCount);
+
+            return db.update(REMOVED_FILES_COUNT_TABLE, contentValues, null, null);
+        }
+    }
+
+    public int incrementRemovedFilesCount() {
+        int oldCount = getRemovedFilesCount();
+        return updateRemovedFilesCount(++oldCount);
+    }
 
     public void deleteDatabase() {
         context.deleteDatabase(DATABASE_NAME);
     }
 
     public void addFile(File file) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(PICTURES_TABLE_PATH, file.getPath());
-        db.insert(PICTURES_TABLE, null, contentValues);
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(PICTURES_TABLE_PATH, file.getPath());
+            db.insert(PICTURES_TABLE, null, contentValues);
+        }
     }
 
     public void addFiles(File[] files) {
-
         for (File file : files) {
             addFile(file);
         }
     }
 
     public void removeFile(File file) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(PICTURES_TABLE, PICTURES_TABLE_PATH + " = ?", new String[]{file.getPath()});
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            db.delete(PICTURES_TABLE, PICTURES_TABLE_PATH + " = ?", new String[]{file.getPath()});
+            incrementRemovedFilesCount();
+        }
     }
 
     public void removeFiles(File[] files) {
@@ -165,55 +210,61 @@ public class Database extends SQLiteOpenHelper {
     }
 
     public void updateDate() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Date currentDate = new Date();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            Date currentDate = new Date();
 
-        ContentValues contentValues = new ContentValues();
-        String id = "1"; //TODO: sa fac cate o data pentru fiecare server
-        contentValues.put(DATE_TABLE_DATE_ID, 1);
-        contentValues.put(DATE_TABLE_DATE_COLUMN, currentDate.getTime());
-        db.update(DATE_TABLE, contentValues, "ID = ?", new String[]{id});
-
+            Log.v(TAG, "Database.updateDate() - currentDate(sync): " + currentDate);
+            Log.v(TAG, "Database.updateDate() - currentDate(sync): " + currentDate.getTime());
+            ContentValues contentValues = new ContentValues();
+            //String id = "1"; //TODO: make a date for every server?
+            //contentValues.put(DATE_TABLE_DATE_ID, 1);
+            contentValues.put(DATE_TABLE_DATE_COLUMN, currentDate.getTime());
+            db.update(DATE_TABLE, contentValues, null, null);
+        }
     }
 
     public File[] getAllPhotos() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        try (SQLiteDatabase db = this.getWritableDatabase();
+             Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from " + PICTURES_TABLE, null)) {
 
-        Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from " + PICTURES_TABLE, null);
+            int pathColumnIndex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
 
-        int pathColumnIndex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
+            File[] files = new File[cursor.getCount()];
 
-        File[] files = new File[cursor.getCount()];
+            int count = 0;
+            while (cursor.moveToNext()) {
+                File file = new File(cursor.getString(pathColumnIndex));
+                files[count++] = file;
+            }
 
-        int count = 0;
-        while (cursor.moveToNext()) {
-            File file = new File(cursor.getString(pathColumnIndex));
-            files[count++] = file;
+            return files;
         }
-
-        cursor.close();
-        return files;
-
     }
 
     public Date getLastDate() {
-        SQLiteDatabase db = this.getWritableDatabase();
-//        Cursor res = db.rawQuery("select * from "+ DATE_TABLE, null);
-        Cursor cursor = db.query(DATE_TABLE,
-                new String[]{DATE_TABLE_DATE_COLUMN},
-                DATE_TABLE_DATE_ID + " = ?",
-                new String[]{"1"},
-                null, null, null);
+        try (SQLiteDatabase db = this.getWritableDatabase();
+             Cursor cursor = db.rawQuery("select " + DATE_TABLE_DATE_COLUMN +
+                     " from " + DATE_TABLE, null)) {
 
-        int dateColumnIndex = cursor.getColumnIndex(DATE_TABLE_DATE_COLUMN);
+//            Cursor cursor = db.query(DATE_TABLE,
+//                    new String[]{DATE_TABLE_DATE_COLUMN},
+//                    DATE_TABLE_DATE_ID + " = ?",
+//                    new String[]{"1"},
+//                    null, null, null)
+            int dateColumnIndex = cursor.getColumnIndex(DATE_TABLE_DATE_COLUMN);
 
-        if (cursor.moveToFirst()) {
-            cursor.close();
-            return new Date(cursor.getInt(dateColumnIndex));
-        } else {
-            cursor.close();
-            return new Date(1);
+            if (cursor.moveToFirst()) {
+                return new Date(cursor.getLong(dateColumnIndex));
+            } else {
+                return new Date(1);
+            }
         }
+    }
 
+    public int getNumberOfFilesToBeUploaded() {
+        try (SQLiteDatabase db = this.getWritableDatabase();
+             Cursor cursor = db.rawQuery("SELECT * FROM " + PICTURES_TABLE + ";", null)) {
+            return cursor.getCount();
+        }
     }
 }

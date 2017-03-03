@@ -26,6 +26,7 @@ import com.gmail.btheo95.aria.fragment.LicenseFragment;
 import com.gmail.btheo95.aria.fragment.ServersFragment;
 import com.gmail.btheo95.aria.fragment.SettingsFragment;
 import com.gmail.btheo95.aria.fragment.StatusFragment;
+import com.gmail.btheo95.aria.service.ServerScannerService;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity
             //if screen did not rotate
             if (savedInstanceState == null) {
                 setMainFragmentWithoutAnimation(StatusFragment.newInstance());
+                ServerScannerService.start(this);
             }
         }
 
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity
                 //User cancelled the intro so we'll finish this activity too.
                 finish();
             }
-        } else if (requestCode == REQUEST_CODE_INTRO) {
+        } else if (requestCode == REQUEST_CODE_PICK_FILE) {
             if (resultCode == RESULT_OK) {
                 // TODO: upload the file.
                 Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG).show();
@@ -230,6 +232,11 @@ public class MainActivity extends AppCompatActivity
         super.onSaveInstanceState(savedInstanceState);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {

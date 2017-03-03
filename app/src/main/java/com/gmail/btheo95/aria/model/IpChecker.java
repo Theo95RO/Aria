@@ -2,12 +2,10 @@ package com.gmail.btheo95.aria.model;
 
 import android.util.Log;
 
-import com.gmail.btheo95.aria.utils.HttpRequest;
-import com.gmail.btheo95.aria.utils.Network;
+import com.gmail.btheo95.aria.network.HttpRequest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -16,7 +14,7 @@ import java.util.concurrent.Callable;
  * Created by btheo on 09.11.2016.
  */
 
-public class IpChecker implements Callable<Server>{
+public class IpChecker implements Callable<Server> {
 
     private final static String TAG = IpChecker.class.getSimpleName();
     private String ip;
@@ -26,11 +24,12 @@ public class IpChecker implements Callable<Server>{
     private boolean isOpened = false;
     private int timeout;
 
-    public IpChecker(String ip, String port, int timeout){
+    public IpChecker(String ip, String port, int timeout) {
         this.ip = ip;
         this.port = port;
         this.timeout = timeout;
     }
+
     @Override
     public Server call() throws Exception {
         try {

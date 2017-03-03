@@ -17,11 +17,11 @@ import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
 import android.widget.LinearLayout;
 
-import com.gmail.btheo95.aria.Database;
 import com.gmail.btheo95.aria.R;
 import com.gmail.btheo95.aria.adapter.ServerRecyclerViewAdapter;
 import com.gmail.btheo95.aria.model.Server;
-import com.gmail.btheo95.aria.utils.Network;
+import com.gmail.btheo95.aria.network.Network;
+import com.gmail.btheo95.aria.utils.Database;
 
 import java.util.ArrayList;
 import java.util.List;

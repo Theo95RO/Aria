@@ -1,6 +1,5 @@
-package com.gmail.btheo95.aria;
+package com.gmail.btheo95.aria.network;
 
-import android.util.Log;
 import android.util.Pair;
 
 import java.io.DataOutputStream;
@@ -34,7 +33,7 @@ public class HttpFileUpload {
         try {
             mURL = new URL(urlString);
         } catch (MalformedURLException ex) {
-            Log.e("HttpFileUpload", "URL Malformatted");
+//            Log.e("HttpFileUpload", "URL Malformatted");
             throw ex;
         }
     }
@@ -51,7 +50,7 @@ public class HttpFileUpload {
     }
 
     Pair<Integer, String> send() throws IOException {
-        Log.e(TAG, "Starting Http File Sending to URL");
+//        Log.v(TAG, "Starting Http File Sending to URL");
 
         // Open a HTTP connection to the URL
         HttpURLConnection conn = (HttpURLConnection) mURL.openConnection();
@@ -62,7 +61,7 @@ public class HttpFileUpload {
         }
 
         int responseCode = conn.getResponseCode();
-        Log.e(TAG, "File Sent, Response: " + String.valueOf(responseCode));
+//        Log.v(TAG, "File Sent, Response: " + String.valueOf(responseCode));
         String responseString = "";
 
         // retrieve the response from server
@@ -83,7 +82,7 @@ public class HttpFileUpload {
 
         String responseString = stringBuilder.toString();
 
-        Log.i("Response", responseString);
+//        Log.v("Response", responseString);
 
         return responseString;
     }
@@ -106,7 +105,7 @@ public class HttpFileUpload {
         dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + mFileName + "\"" + LINE_END);
         dataOutputStream.writeBytes(LINE_END);
 
-        Log.e(TAG, "Headers are written");
+//        Log.v(TAG, "Headers are written");
 
         // create a buffer of maximum size
         int bytesAvailable = mFileInputStream.available();

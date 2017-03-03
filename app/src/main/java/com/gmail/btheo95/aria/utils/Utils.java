@@ -1,4 +1,4 @@
-package com.gmail.btheo95.aria;
+package com.gmail.btheo95.aria.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

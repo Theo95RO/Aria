@@ -1,4 +1,4 @@
-package com.gmail.btheo95.aria;
+package com.gmail.btheo95.aria.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +29,7 @@ public class WifiWatcher extends BroadcastReceiver {
                 info.isConnected() &&
                 info.getType() == ConnectivityManager.TYPE_WIFI) {
 
-            if(firstConnect) {
+            if (firstConnect) {
                 Log.d(TAG, "Connected on wifi");
                 Intent serviceIntent = new Intent(context, ServerScannerService.class);
                 context.startService(serviceIntent);
@@ -41,7 +41,7 @@ public class WifiWatcher extends BroadcastReceiver {
 
             Log.d(TAG, "Disconnected from wifi");
 
-            firstConnect= true;
+            firstConnect = true;
 
             Intent serviceIntent = new Intent(context, ServerScannerService.class);
             context.stopService(serviceIntent);

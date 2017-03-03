@@ -1,9 +1,8 @@
 package com.gmail.btheo95.aria.fragment;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.app.Fragment;
+import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,22 +13,15 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.gmail.btheo95.aria.R;
+import com.gmail.btheo95.aria.utils.Database;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link StatusFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link StatusFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class StatusFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
+    private Database mDatabase;
+    private Context mContext;
 
     public StatusFragment() {
         // Required empty public constructor
@@ -41,27 +33,18 @@ public class StatusFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        mContext = context;
+        mDatabase = new Database(mContext);
 
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        PieChart chart = (PieChart) getView().findViewById(R.id.chart);
-
-        PieEntry[] entries = new PieEntry[]{
-                new PieEntry(500, "uploaded"),
-                new PieEntry(1000, "to be uploaded")
-        };
-
-        PieDataSet dataSet = new PieDataSet(Arrays.asList(entries), "# of photos");
-        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-
-        PieData pieData = new PieData(dataSet);
-        chart.setData(pieData);
     }
 
     @Override
@@ -71,42 +54,21 @@ public class StatusFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_status, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-        }
-    }
+    public void onStart() {
+        super.onStart();
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
+        PieChart chart = (PieChart) getView().findViewById(R.id.chart);
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        PieEntry[] entries = new PieEntry[]{
+                new PieEntry(mDatabase.getRemovedFilesCount(), "uploaded"),
+                new PieEntry(mDatabase.getNumberOfFilesToBeUploaded(), "to be uploaded")
+        };
+
+        PieDataSet dataSet = new PieDataSet(Arrays.asList(entries), "# of photos");
+        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+
+        PieData pieData = new PieData(dataSet);
+        chart.setData(pieData);
     }
 }

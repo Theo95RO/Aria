@@ -1,6 +1,5 @@
-package com.gmail.btheo95.aria.utils;
+package com.gmail.btheo95.aria.network;
 
-import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;

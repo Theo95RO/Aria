@@ -1,4 +1,4 @@
-package com.gmail.btheo95.aria;
+package com.gmail.btheo95.aria.utils;
 
 /**
  * Created by btheo on 02.11.2016.
