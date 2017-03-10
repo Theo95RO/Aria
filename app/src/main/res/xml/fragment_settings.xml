@@ -7,7 +7,7 @@
 
         <SwitchPreference
             android:title="@string/showNotificationPreferenceSwitch"
-            android:key="showNotificationPreference"
+            android:key="show_notification_preference"
             android:defaultValue="true"
             android:summary="@string/showNotificationPreferenceSummary" />
 
@@ -18,19 +18,19 @@
 
         <SwitchPreference
             android:title="@string/uploadPhotosPreferenceSwitch"
-            android:key="uploadPhotosPreference"
+            android:key="upload_photos_preference"
             android:defaultValue="true"
             android:summary="@string/uploadPhotosPreferenceSummary"/>
 
         <SwitchPreference
             android:title="@string/uploadVideosPreferenceSwitch"
-            android:key="uploadVideosPreference"
+            android:key="upload_videos_preference"
             android:defaultValue="false"
             android:summary="@string/uploadVideosPreferenceSummary"/>
 
         <SwitchPreference
-            android:title="@string/deleteAfterUploadPreferenceSwitch"
-            android:key="deleteMediaAfterUploadPreference"
+            android:title="@string/free_memory_after_upload_preference_switch"
+            android:key="free_memory_after_upload_preference"
             android:defaultValue="false"
             android:summary="@string/deleteAfterUploadPreferenceSummary"/>
 

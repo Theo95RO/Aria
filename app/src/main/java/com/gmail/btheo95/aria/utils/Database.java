@@ -10,7 +10,9 @@ import android.util.Log;
 import com.gmail.btheo95.aria.model.Server;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by btheo on 16.11.2016.
@@ -191,6 +193,18 @@ public class Database extends SQLiteOpenHelper {
     }
 
     public void addFiles(File[] files) {
+        if (null == files) {
+            return;
+        }
+        for (File file : files) {
+            addFile(file);
+        }
+    }
+
+    public void addFiles(List<File> files) {
+        if (null == files) {
+            return;
+        }
         for (File file : files) {
             addFile(file);
         }
@@ -223,18 +237,18 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    public File[] getAllPhotos() {
+    public List<File> getMedia() {
         try (SQLiteDatabase db = this.getWritableDatabase();
              Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from " + PICTURES_TABLE, null)) {
 
             int pathColumnIndex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
 
-            File[] files = new File[cursor.getCount()];
+            List<File> files = new ArrayList<>(cursor.getCount());
 
             int count = 0;
             while (cursor.moveToNext()) {
                 File file = new File(cursor.getString(pathColumnIndex));
-                files[count++] = file;
+                files.add(file);
             }
 
             return files;
@@ -267,4 +281,5 @@ public class Database extends SQLiteOpenHelper {
             return cursor.getCount();
         }
     }
+
 }

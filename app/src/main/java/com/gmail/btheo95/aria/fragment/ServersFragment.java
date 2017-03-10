@@ -31,21 +31,18 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
  */
 public class ServersFragment extends Fragment implements ServerRecyclerViewAdapter.RecyclerItemClickListener {
 
     private static final String TAG = ServersFragment.class.getSimpleName();
 
+    private Context mContext;
     private Database mDatabase;
     private Handler mHandler;
 
     private ServerRecyclerViewAdapter mAdapter;
     private List<Server> mListOfServers;
     private ScheduledExecutorService mScheduler;
-    private OnListFragmentInteractionListener mListener;
 
     private LinearLayout mLoadingContainer;
     private LinearLayout mListContainer;
@@ -93,6 +90,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         Log.d(TAG, "onStop()");
         mActivityIsRunning = false;
         mScheduler.shutdown();
+        //TODO: Stop threads that are searching for servers
         super.onStop();
     }
 
@@ -108,13 +106,12 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_servers_list, container, false);
-        Context context = view.getContext();
 
-        mDatabase = new Database(context);
+        mDatabase = new Database(mContext);
         mAdapter = new ServerRecyclerViewAdapter(mListOfServers, mDatabase.getServer(), this);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.servers_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         recyclerView.setAdapter(mAdapter);
 
         mLoadingContainer = (LinearLayout) view.findViewById(R.id.servers_loading_container);
@@ -133,22 +130,13 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
 
     @Override
     public void onAttach(Context context) {
-
-        Log.d(TAG, "onAttach()");
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            //TODO: resolve lower comment
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnListFragmentInteractionListener");
-        }
+        this.mContext = context;
         super.onAttach(context);
     }
 
     @Override
     public void onDetach() {
         Log.d(TAG, "onDetach()");
-        mListener = null;
         super.onDetach();
     }
 
@@ -164,6 +152,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
                 switch (msg.what) {
 
                     case INITIAL_SERVERS_LIST_MESSAGE:
+                        Log.d(TAG, "INITIAL_SERVERS_LIST_MESSAGE");
                         changeViewContainers();
 
                     case SERVERS_LIST_UPDATED_MESSAGE:
@@ -172,6 +161,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
 //                        mListOfServers.addAll((Collection<? extends Server>) msg.obj);
 //                        Log.d(TAG, "number of items in new list: " + ((Collection<? extends Server>) msg.obj).size());
 //                        mAdapter.notifyDataSetChanged();
+                        Log.d(TAG, "SERVERS_LIST_UPDATED_MESSAGE");
                         mAdapter.changeData((List<Server>) msg.obj);
                         break;
 
@@ -215,22 +205,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         mDatabase.setServer(item);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(Server item);
-    }
-
-
-    public class ServersSearcher implements Runnable {
+    private class ServersSearcher implements Runnable {
 
         private final int message;
 
@@ -244,22 +219,20 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
             List<Server> updatedListOfServers = Network.getLocalServersList(getActivity());
             Log.v(TAG, "stopped searching for servers");
 
-            Server dummy01 = new Server("dummy01", "dummy01", "dummy01", true, "dummy01");
-            Server dummy02 = new Server("dummy02", "dummy02", "dummy02", true, "dummy02");
-            Server dummy03 = new Server("dummy03", "dummy03", "dummy03", true, "dummy03");
-            Server dummy04 = new Server("dummy04", "dummy04", "dummy06", true, "dummy04");
-            Server dummy05 = new Server("dummy05", "dummy05", "dummy05", true, "dummy05");
-            Server dummy06 = new Server("dummy06", "dummy06", "dummy06", true, "dummy06");
-            updatedListOfServers.add(dummy01);
-            updatedListOfServers.add(dummy02);
-            updatedListOfServers.add(dummy03);
-            updatedListOfServers.add(dummy04);
-            updatedListOfServers.add(dummy05);
-            updatedListOfServers.add(dummy06);
+//            Server dummy01 = new Server("dummy01", "dummy01", "dummy01", true, "dummy01");
+//            Server dummy02 = new Server("dummy02", "dummy02", "dummy02", true, "dummy02");
+//            Server dummy03 = new Server("dummy03", "dummy03", "dummy03", true, "dummy03");
+//            Server dummy04 = new Server("dummy04", "dummy04", "dummy06", true, "dummy04");
+//            Server dummy05 = new Server("dummy05", "dummy05", "dummy05", true, "dummy05");
+//            Server dummy06 = new Server("dummy06", "dummy06", "dummy06", true, "dummy06");
+//            updatedListOfServers.add(dummy01);
+//            updatedListOfServers.add(dummy02);
+//            updatedListOfServers.add(dummy03);
+//            updatedListOfServers.add(dummy04);
+//            updatedListOfServers.add(dummy05);
+//            updatedListOfServers.add(dummy06);
 
             Server defaultServer = mDatabase.getServer();
-            Log.d(TAG, "DEFAULT Server: " + defaultServer.getIp());
-
 
             if (defaultServer == null) {
                 if (updatedListOfServers.size() >= 1) {

@@ -7,7 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.gmail.btheo95.aria.service.ServerScannerService;
+import com.gmail.btheo95.aria.service.MediaService;
 
 public class WifiWatcher extends BroadcastReceiver {
 
@@ -31,7 +31,7 @@ public class WifiWatcher extends BroadcastReceiver {
 
             if (firstConnect) {
                 Log.d(TAG, "Connected on wifi");
-                Intent serviceIntent = new Intent(context, ServerScannerService.class);
+                Intent serviceIntent = new Intent(context, MediaService.class);
                 context.startService(serviceIntent);
                 firstConnect = false;
             }
@@ -43,7 +43,7 @@ public class WifiWatcher extends BroadcastReceiver {
 
             firstConnect = true;
 
-            Intent serviceIntent = new Intent(context, ServerScannerService.class);
+            Intent serviceIntent = new Intent(context, MediaService.class);
             context.stopService(serviceIntent);
         }
 

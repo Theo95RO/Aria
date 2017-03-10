@@ -2,6 +2,10 @@ package com.gmail.btheo95.aria.activity;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -26,7 +30,7 @@ import com.gmail.btheo95.aria.fragment.LicenseFragment;
 import com.gmail.btheo95.aria.fragment.ServersFragment;
 import com.gmail.btheo95.aria.fragment.SettingsFragment;
 import com.gmail.btheo95.aria.fragment.StatusFragment;
-import com.gmail.btheo95.aria.service.ServerScannerService;
+import com.gmail.btheo95.aria.service.MediaJobService;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
@@ -35,12 +39,13 @@ public class MainActivity extends AppCompatActivity
 
     private static String TAG = MainActivity.class.getSimpleName();
 
-    private FloatingActionButton fab;
-    private ActionBarDrawerToggle toggle;
-    private Toolbar toolbar;
+    private FloatingActionButton mFab;
+    private ActionBarDrawerToggle mHamburgerToggle;
+    private Toolbar mToolbar;
+    private NavigationView mNavigationView;
+    private DrawerLayout mDrawer;
 
-    private NavigationView navigationView;
-    private int currentNavigationItemId;
+    private int mCurrentNavigationItemId;
     private int mLastNavigationItemId = -1;
     private boolean mShouldShowArrow = false;
 
@@ -53,23 +58,24 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startPickFileActivity();
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mHamburgerToggle = new ActionBarDrawerToggle(
+                this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-                //sa nu mai faca animatia toggle-ul
+                // TODO: sa nu mai faca animatia toggle-ul
                 if (mShouldShowArrow) {
                     super.onDrawerSlide(drawerView, slideOffset);
                 } else {
@@ -77,13 +83,14 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-        currentNavigationItemId = R.id.nav_status;
-        toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_status);
+        mCurrentNavigationItemId = R.id.nav_status;
 
+        mHamburgerToggle.syncState();
+
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
+        mNavigationView.setCheckedItem(R.id.nav_status);
 
         boolean firstStart = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(PREF_KEY_FIRST_START, true);
@@ -94,10 +101,12 @@ public class MainActivity extends AppCompatActivity
         }
         //Set the fragment initially
         else {
-            //if screen did not rotate
+            //if screen did not rotate (Activity just started)
             if (savedInstanceState == null) {
                 setMainFragmentWithoutAnimation(StatusFragment.newInstance());
-                ServerScannerService.start(this);
+                MediaJobService.restartNewMediaJob(getApplicationContext());
+//                MediaService.start(getApplicationContext());
+//                MediaJobService.startNewMediaJobIfNotPending(getApplicationContext());
             }
         }
 
@@ -109,7 +118,7 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (currentNavigationItemId == R.id.nav_about) {
+        } else if (mCurrentNavigationItemId == R.id.nav_about) {
             setFragmentByNavigationItemId(mLastNavigationItemId, R.animator.fade_in, R.animator.fade_out);
         } else {
             super.onBackPressed();
@@ -125,6 +134,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //TODO:
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -147,58 +157,38 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         setFragmentByNavigationItemId(id, R.animator.slide_in_right, R.animator.slide_out_left);
 
-//        if (currentNavigationItemId != id) {
-//            currentNavigationItemId = id;
-//            if (id == R.id.nav_settings) {
-//                setMainFragment(SettingsFragment.newInstance());
-//                fab.hide();
-//
-//            } else if (id == R.id.nav_status) {
-//                setMainFragment(StatusFragment.newInstance());
-//                fab.show();
-//            } else if (id == R.id.nav_servers) {
-//                setMainFragment(ServersFragment.newInstance());
-//                fab.show();
-//            } else if (id == R.id.nav_about) {
-//                setMainFragment(AboutFragment.newInstance());
-//                fab.hide();
-//            }
-//        }
-
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        mDrawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     private void setFragmentByNavigationItemId(int id, Integer idOfInAnimation, Integer idOfOutAnimation) {
 
-        if (currentNavigationItemId != id) {
-            mLastNavigationItemId = currentNavigationItemId;
-            currentNavigationItemId = id;
+        if (mCurrentNavigationItemId != id) {
+            mLastNavigationItemId = mCurrentNavigationItemId;
+            mCurrentNavigationItemId = id;
             Fragment fragment = null;
             if (id == R.id.nav_settings) {
                 fragment = SettingsFragment.newInstance();
-                fab.hide();
+                mFab.hide();
 
             } else if (id == R.id.nav_status) {
                 fragment = StatusFragment.newInstance();
-                fab.show();
+                mFab.show();
             } else if (id == R.id.nav_servers) {
                 fragment = ServersFragment.newInstance();
-                fab.show();
+                mFab.show();
             } else if (id == R.id.nav_about) {
                 fragment = AboutFragment.newInstance();
-                fab.hide();
+                mFab.hide();
             }
             setMainFragment(fragment, idOfInAnimation, idOfOutAnimation);
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult() -> resultCode = " + resultCode + " requestCode = " + requestCode);
 
-        //REQUEST_CODE_PICK_FILE
         if (requestCode == REQUEST_CODE_INTRO) {
             if (resultCode == RESULT_OK) {
                 PreferenceManager.getDefaultSharedPreferences(this).edit()
@@ -217,7 +207,7 @@ public class MainActivity extends AppCompatActivity
             }
         } else if (requestCode == REQUEST_CODE_PICK_FILE) {
             if (resultCode == RESULT_OK) {
-                // TODO: upload the file.
+                // TODO: upload the file. Schedule JobService
                 Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG).show();
             }
         }
@@ -225,10 +215,26 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private static final int JOB_NEW_MEDIA = 0;
+    private static final int JOB_UPLOAD_MEDIA = 1;
+
+    private void startSchedulers() {
+        ComponentName service = new ComponentName(this, MediaJobService.class);
+        JobInfo jobInfo = new JobInfo.Builder(JOB_NEW_MEDIA, service)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setRequiresDeviceIdle(true)
+                .setPeriodic(600000) // 10 minutes
+                .build();
+
+        JobScheduler scheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int result = scheduler.schedule(jobInfo);
+        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
+    }
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean("hasRotated", true);
-        savedInstanceState.putInt("currentNavigationItemId", currentNavigationItemId);
+        savedInstanceState.putInt("currentNavigationItemId", mCurrentNavigationItemId);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -244,27 +250,13 @@ public class MainActivity extends AppCompatActivity
 
         int id = savedInstanceState.getInt("currentNavigationItemId");
         setFragmentByNavigationItemId(id, null, null);
-        /*
-        if (currentNavigationItemId == R.id.nav_settings) {
-            setMainFragmentWithoutAnimation(SettingsFragment.newInstance());
-            fab.hide();
-
-        } else if (currentNavigationItemId == R.id.nav_status) {
-            setMainFragmentWithoutAnimation(StatusFragment.newInstance());
-            //fab.show();
-        } else if (currentNavigationItemId == R.id.nav_servers) {
-            setMainFragmentWithoutAnimation(ServersFragment.newInstance());
-            //fab.show();
-        } else if (currentNavigationItemId == R.id.nav_about) {
-            setMainFragmentWithoutAnimation(AboutFragment.newInstance());
-            fab.hide();
-        }*/
     }
 
     @Override
     public void onLicenseClicked() {
         mShouldShowArrow = true;
         setMainFragmentWithoutAnimation(LicenseFragment.newInstance());
+        mHamburgerToggle.setDrawerIndicatorEnabled(true); //TODO:
     }
 
     private void setTargetPromptForFAB() {
@@ -347,14 +339,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setMainFragmentWithFadeAnimation(Fragment fragment) {
-        FragmentTransaction fragmentTransaction =
-                getFragmentManager().beginTransaction();
-
-        fragmentTransaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
-        fragmentTransaction.replace(R.id.content_main, fragment);
-
-        fragmentTransaction.commit();
+        setMainFragment(fragment, R.animator.fade_in, R.animator.fade_out);
     }
+
     private void setMainFragmentWithoutAnimation(Fragment fragment) {
         FragmentTransaction fragmentTransaction =
                 getFragmentManager().beginTransaction();
@@ -364,9 +351,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void startPickFileActivity() {
-        Log.d(TAG, "startPickFileActivity()");
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        startActivityForResult(intent, REQUEST_CODE_PICK_FILE);
+        try {
+            Log.d(TAG, "startPickFileActivity()");
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUEST_CODE_PICK_FILE);
+        } catch (android.content.ActivityNotFoundException ex) {
+            // TODO: Potentially direct the user to the Market with a Dialog
+            Toast.makeText(this, "Please install a File Manager.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 }

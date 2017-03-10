@@ -16,7 +16,7 @@
 
     <!-- Strings related to Preferances -->
     <string name="uploadVideosPreferenceSwitch">Upload videos</string>
-    <string name="deleteAfterUploadPreferenceSwitch">Delete content after upload</string>
+    <string name="free_memory_after_upload_preference_switch">Free device memory after upload</string>
     <string name="uploadPhotosPreferenceSwitch">Upload photos</string>
     <string name="showNotificationPreferenceSwitch">Notifications</string>
 

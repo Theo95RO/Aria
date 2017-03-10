@@ -49,7 +49,7 @@ public class HttpFileUpload {
         return send();
     }
 
-    Pair<Integer, String> send() throws IOException {
+    private Pair<Integer, String> send() throws IOException {
 //        Log.v(TAG, "Starting Http File Sending to URL");
 
         // Open a HTTP connection to the URL
