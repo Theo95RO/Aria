@@ -24,17 +24,20 @@ public class MediaJobService extends JobService {
     public static final int JOB_NEW_MEDIA = 0;
     public static final int JOB_UPLOAD_MEDIA = 1;
 
+    private Worker mWorker;
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         Log.d(TAG, "MediaJobService.onStartJob()");
-        Worker worker = new Worker(jobParameters);
-        new Thread(worker).start();
+        mWorker = new Worker(jobParameters);
+        new Thread(mWorker).start();
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
         Log.d(TAG, "MediaJobService.onStopJob()");
+        mWorker.stop();
         return true;
     }
 
@@ -89,6 +92,7 @@ public class MediaJobService extends JobService {
     private class Worker implements Runnable {
 
         private JobParameters mJobParameters;
+        private MediaUploader mMediaUploader;
 
         Worker(JobParameters jobParameters) {
             this.mJobParameters = jobParameters;
@@ -99,9 +103,16 @@ public class MediaJobService extends JobService {
         public void run() {
             Context context = getApplicationContext();
             Media.updateData(context);
-            MediaUploader mediaUploader = new MediaUploader(context);
-            mediaUploader.startUploading();
+            mMediaUploader = new MediaUploader(context);
+            mMediaUploader.startUploading();
             MediaJobService.this.jobFinished(mJobParameters, false);
+        }
+
+        void stop() {
+            if (mMediaUploader == null) {
+                return;
+            }
+            mMediaUploader.stop();
         }
     }
 }

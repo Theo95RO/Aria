@@ -56,6 +56,7 @@ public class HttpFileUpload {
         HttpURLConnection conn = (HttpURLConnection) mURL.openConnection();
         configureConnection(conn);
 
+        //TODO: it waits too much
         try (DataOutputStream dataOutputStream = new DataOutputStream(conn.getOutputStream())) {
             doOutput(dataOutputStream);
         }

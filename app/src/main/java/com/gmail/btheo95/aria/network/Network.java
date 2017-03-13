@@ -18,7 +18,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -70,7 +72,7 @@ public class Network {
 //        return sb.toString();
     }
 
-    public static List<Server> getServerIps(Context context){
+    public static List<Server> getServerIps(Context context) {
         return getServerIps(context);
     }
 
@@ -80,7 +82,7 @@ public class Network {
     }
 
     public static List<Server> getServersList(String ip) {
-        return  getServersList(new IPv4(ip));
+        return getServersList(new IPv4(ip));
     }
 
     public static List<Server> getServersList(IPv4 currentDiviceIp) {
@@ -91,7 +93,7 @@ public class Network {
         final ExecutorService es = Executors.newFixedThreadPool(20);
 
         IPv4 ip = new IPv4(currentDiviceIp);
-        ip.setCell4((short)0);
+        ip.setCell4((short) 0);
 
         final List<Future<Server>> futures = new ArrayList<>();
         for (int i = 1; i <= 256; i++) {
@@ -118,7 +120,7 @@ public class Network {
         return serverIpsList;
     }
 
-    public static Pair<Integer, String> httpRequest (String url, String requestMethod, boolean doInput, boolean doOutput, String output) throws IOException {
+    public static Pair<Integer, String> httpRequest(String url, String requestMethod, boolean doInput, boolean doOutput, String output) throws IOException {
 
         URL obj = new URL(url);
 
@@ -129,7 +131,7 @@ public class Network {
         con.setDoOutput(doOutput);
         con.setDoInput(doInput);
 
-        if(doOutput && output != null){
+        if (doOutput && output != null) {
             setOutputStreamContent(con.getOutputStream(), output);
             con.getOutputStream().close();
         }
@@ -139,16 +141,16 @@ public class Network {
 
 
         String response = "";
-        if(doInput){
+        if (doInput) {
             response = getInputStreamContent(con.getInputStream());
             con.getInputStream().close();
         }
 
 
-        return new Pair<Integer, String>(responseCode, response);
+        return new Pair<>(responseCode, response);
     }
 
-    private static String getInputStreamContent (InputStream inputStream) throws IOException{
+    private static String getInputStreamContent(InputStream inputStream) throws IOException {
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(inputStream));
         String inputLine;
@@ -167,4 +169,16 @@ public class Network {
         wr.flush();
     }
 
+    public static boolean isServerReacheble(Server server) {
+        try (Socket socket = new Socket()) {
+            String address = server.getIp();
+            int port = Integer.parseInt(server.getPort());
+
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
+            socket.connect(inetSocketAddress, Constants.TIMEOUT_FOR_SERVER_CHECKING);
+            return true;
+        } catch (IOException e) {
+            return false; // Either timeout or unreachable or failed DNS lookup.
+        }
+    }
 }

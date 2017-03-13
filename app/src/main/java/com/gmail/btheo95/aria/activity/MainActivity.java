@@ -2,10 +2,6 @@ package com.gmail.btheo95.aria.activity;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -215,29 +211,12 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private static final int JOB_NEW_MEDIA = 0;
-    private static final int JOB_UPLOAD_MEDIA = 1;
-
-    private void startSchedulers() {
-        ComponentName service = new ComponentName(this, MediaJobService.class);
-        JobInfo jobInfo = new JobInfo.Builder(JOB_NEW_MEDIA, service)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setRequiresDeviceIdle(true)
-                .setPeriodic(600000) // 10 minutes
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        int result = scheduler.schedule(jobInfo);
-        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
-    }
-
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean("hasRotated", true);
         savedInstanceState.putInt("currentNavigationItemId", mCurrentNavigationItemId);
         super.onSaveInstanceState(savedInstanceState);
     }
-
 
     @Override
     protected void onResume() {
