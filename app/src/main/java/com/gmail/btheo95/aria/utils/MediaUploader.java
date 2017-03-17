@@ -101,10 +101,10 @@ public class MediaUploader {
         initNotifForUpl();
 
         try {
-            HttpFileUpload httpFileUpload = new HttpFileUpload(mServerURL);
 
             for (File file : filesToUpload) {
-                if (mFilesUploadedCounter == 20) {
+                if (mFilesUploadedCounter == 5) {
+                    mFilesToUploadCounter = 5;
                     uploadFinished();
                     return;
                 }
@@ -113,6 +113,7 @@ public class MediaUploader {
                 }
                 mFilesUploadedCounter++;
                 updateNotification();
+                HttpFileUpload httpFileUpload = new HttpFileUpload(mServerURL);
                 try {
                     android.util.Pair<Integer, String> uploadResponse = httpFileUpload.sendNow(file);
                     Log.v(TAG, "Upload response: " + uploadResponse.first + " - " + uploadResponse.second);
@@ -121,8 +122,9 @@ public class MediaUploader {
                     mFilesSuccefullyUploadedCounter++;
                     Log.v(TAG, "1 file uploaded");
                 } catch (IOException e) {
-                    mFilesFailedUploadCounter++;
-                    Log.v(TAG, "1 file upload failed");
+                    //mFilesFailedUploadCounter++;
+                    Log.v(TAG, "File upload failed");
+                    break;
                 }
             }
         } catch (MalformedURLException e) {
@@ -170,7 +172,7 @@ public class MediaUploader {
         if (!mShouldShowNotifications) {
             return;
         }
-        if (mFilesSuccefullyUploadedCounter == 0) {
+        if (mFilesSuccefullyUploadedCounter != mFilesToUploadCounter) {
             mNotificationBuilder
                     .setSmallIcon(R.drawable.ic_highlight_off_black_24dp)
                     .setContentTitle(mContext.getString(R.string.notification_connection_lost_title));

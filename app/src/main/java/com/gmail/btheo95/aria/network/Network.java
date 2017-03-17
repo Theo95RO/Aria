@@ -120,13 +120,14 @@ public class Network {
         return serverIpsList;
     }
 
-    public static Pair<Integer, String> httpRequest(String url, String requestMethod, boolean doInput, boolean doOutput, String output) throws IOException {
+    public static Pair<Integer, String> httpRequest(String stringUrl, String requestMethod, boolean doInput, boolean doOutput, String output) throws IOException {
 
-        URL obj = new URL(url);
+        URL url = new URL(stringUrl);
 
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
         con.setRequestMethod(requestMethod);
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
         con.setDoOutput(doOutput);
         con.setDoInput(doInput);
@@ -170,11 +171,20 @@ public class Network {
     }
 
     public static boolean isServerReacheble(Server server) {
-        try (Socket socket = new Socket()) {
-            String address = server.getIp();
+        try {
             int port = Integer.parseInt(server.getPort());
 
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
+            return isIpWithPortReacheble(server.getIp(), port)
+                    && HttpRequest.isSameMacOnServer(server.getIp(), server.getPort(), server.getMacAddress());
+
+        } catch (IOException e) {
+            return false; // Either timeout or unreachable or failed DNS lookup.
+        }
+    }
+
+    public static boolean isIpWithPortReacheble(String ip, int port) {
+        try (Socket socket = new Socket()) {
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(ip, port);
             socket.connect(inetSocketAddress, Constants.TIMEOUT_FOR_SERVER_CHECKING);
             return true;
         } catch (IOException e) {

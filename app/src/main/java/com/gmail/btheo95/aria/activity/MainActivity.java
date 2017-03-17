@@ -55,6 +55,26 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initialiseViews();
+
+        boolean firstStart = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(PREF_KEY_FIRST_START, true);
+
+        if (firstStart) {
+            Intent intent = new Intent(this, IntroActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_INTRO);
+        }
+        //Set the fragment initially
+        else {
+            //if screen did not rotate (Activity just started)
+            if (savedInstanceState == null) {
+                setMainFragmentWithoutAnimation(StatusFragment.newInstance());
+            }
+        }
+        MediaJobService.restartNewMediaJob(getApplicationContext());
+    }
+
+    private void initialiseViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
@@ -87,26 +107,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
         mNavigationView.setCheckedItem(R.id.nav_status);
-
-        boolean firstStart = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(PREF_KEY_FIRST_START, true);
-
-        if (firstStart) {
-            Intent intent = new Intent(this, IntroActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_INTRO);
-        }
-        //Set the fragment initially
-        else {
-            //if screen did not rotate (Activity just started)
-            if (savedInstanceState == null) {
-                setMainFragmentWithoutAnimation(StatusFragment.newInstance());
-                MediaJobService.restartNewMediaJob(getApplicationContext());
-//                MediaService.start(getApplicationContext());
-//                MediaJobService.startNewMediaJobIfNotPending(getApplicationContext());
-            }
-        }
-
-
     }
 
     @Override

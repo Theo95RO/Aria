@@ -20,7 +20,7 @@ public class IpChecker implements Callable<Server> {
     private String ip;
     private String port;
     private String deviceName;
-    private String macAdress;
+    private String macAddress;
     private boolean isOpened = false;
     private int timeout;
 
@@ -41,7 +41,7 @@ public class IpChecker implements Callable<Server> {
             urlConnection.disconnect();
 
             deviceName = HttpRequest.getHostName(ip, port);
-            macAdress = HttpRequest.getHostMAC(ip, port);
+            macAddress = HttpRequest.getHostMAC(ip, port);
             isOpened = true;
         } catch (MalformedURLException e) {
             Log.v(TAG, "ip is closed(MalformedURLException): " + ip + ":" + port);
@@ -50,7 +50,7 @@ public class IpChecker implements Callable<Server> {
             Log.v(TAG, "ip is closed(IOException): " + ip + ":" + port);
             isOpened = false;
         }
-        return new Server(ip, port, deviceName, isOpened, macAdress);
+        return new Server(ip, port, deviceName, isOpened, macAddress);
     }
 
     public String getIp() {

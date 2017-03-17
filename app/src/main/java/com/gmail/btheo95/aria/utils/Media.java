@@ -131,11 +131,13 @@ public class Media {
     private static List<File> getAllFilesRecursively(File[] files) {
         List<File> returnedList = new ArrayList<>();
 
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                returnedList.addAll(getAllFilesRecursively(files[i].listFiles()));
-            } else if (!(files[i].isHidden())) {
-                returnedList.add(files[i]);
+        for (File file : files) {
+            if (file.isDirectory()) {
+                if (!file.getName().equals(".thumbnails") && !file.isHidden()) {
+                    returnedList.addAll(getAllFilesRecursively(file.listFiles()));
+                }
+            } else if (!(file.isHidden())) {
+                returnedList.add(file);
             }
         }
         return returnedList;
