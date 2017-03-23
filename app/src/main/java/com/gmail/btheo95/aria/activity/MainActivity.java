@@ -1,20 +1,23 @@
 package com.gmail.btheo95.aria.activity;
 
+import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,9 +46,9 @@ public class MainActivity extends AppCompatActivity
 
     private int mCurrentNavigationItemId;
     private int mLastNavigationItemId = -1;
-    private boolean mShouldShowArrow = false;
 
     public static final String PREF_KEY_FIRST_START = "com.gmail.btheo95.aria.PREF_KEY_FIRST_START";
+    public static final String KEY_DEFAULT_NAV_ITEM = "com.gmail.btheo95.aria.KEY_DEFAULT_NAV_ITEM";
     public static final int REQUEST_CODE_INTRO = 1;
     public static final int REQUEST_CODE_PICK_FILE = 2;
 
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         initialiseViews();
+        initialiseRecentView();
 
         boolean firstStart = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(PREF_KEY_FIRST_START, true);
@@ -66,14 +70,22 @@ public class MainActivity extends AppCompatActivity
         }
         //Set the fragment initially
         else {
-            //if screen did not rotate (Activity just started)
-            if (savedInstanceState == null) {
-                setMainFragmentWithoutAnimation(StatusFragment.newInstance());
-            }
+            setDefaultFragment();
         }
-        MediaJobService.restartNewMediaJob(getApplicationContext());
     }
 
+    private void setDefaultFragment() {
+        int defaultNavigationItemId = getIntent().getIntExtra(KEY_DEFAULT_NAV_ITEM, R.id.nav_status);
+        setFragmentByNavigationItemId(defaultNavigationItemId, null, null);
+        mCurrentNavigationItemId = defaultNavigationItemId;
+        mNavigationView.setCheckedItem(defaultNavigationItemId);
+    }
+
+    private void initialiseRecentView() {
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), android.R.drawable.sym_def_app_icon);
+        ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, ContextCompat.getColor(this, R.color.primary_recent));
+        setTaskDescription(taskDesc);
+    }
     private void initialiseViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -91,22 +103,14 @@ public class MainActivity extends AppCompatActivity
                 this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-                // TODO: sa nu mai faca animatia toggle-ul
-                if (mShouldShowArrow) {
-                    super.onDrawerSlide(drawerView, slideOffset);
-                } else {
-                    super.onDrawerSlide(drawerView, 0);
-                }
+                super.onDrawerSlide(drawerView, 0);
             }
         };
 
-        mCurrentNavigationItemId = R.id.nav_status;
-
-        mHamburgerToggle.syncState();
+//        mHamburgerToggle.syncState();
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
-        mNavigationView.setCheckedItem(R.id.nav_status);
     }
 
     @Override
@@ -120,30 +124,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //TODO:
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     //@SuppressWarnings("StatementWithEmptyBody")
     //@NonNull at MenuItem because Android Studio suggested this way, not sure why
@@ -191,8 +171,8 @@ public class MainActivity extends AppCompatActivity
                         .putBoolean(PREF_KEY_FIRST_START, false)
                         .apply();
 
-                //Set the fragment initially
-                setMainFragmentWithoutAnimation(StatusFragment.newInstance());
+                setDefaultFragment();
+                MediaJobService.restartNewMediaJob(getApplicationContext());
                 setTargetPromptForFAB();
             } else {
                 PreferenceManager.getDefaultSharedPreferences(this).edit()
@@ -227,15 +207,16 @@ public class MainActivity extends AppCompatActivity
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
+        Log.d(TAG, "onRestoreInstanceState()");
+
         int id = savedInstanceState.getInt("currentNavigationItemId");
         setFragmentByNavigationItemId(id, null, null);
     }
 
     @Override
     public void onLicenseClicked() {
-        mShouldShowArrow = true;
         setMainFragmentWithoutAnimation(LicenseFragment.newInstance());
-        mHamburgerToggle.setDrawerIndicatorEnabled(true); //TODO:
+        //TODO: popup
     }
 
     private void setTargetPromptForFAB() {

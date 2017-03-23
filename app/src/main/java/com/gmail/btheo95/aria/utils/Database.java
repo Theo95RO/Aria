@@ -22,12 +22,12 @@ public class Database extends SQLiteOpenHelper {
 
     private static final String TAG = Database.class.getSimpleName();
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "ariadb.db";
 
-    private static final String PICTURES_TABLE = "pictures_table";
-    private static final String PICTURES_TABLE_PATH = "path";
-    private static final String PICTURES_TABLE_ID = "id";
+    private static final String FILE_TABLE = "file_table";
+    private static final String FILE_TABLE_PATH = "path";
+    private static final String FILE_TABLE_ID = "id";
 
 
     private static final String DATE_TABLE = "date_table";
@@ -50,7 +50,6 @@ public class Database extends SQLiteOpenHelper {
     public Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
-        Log.v(TAG, "Database.Database()");
     }
 
     @Override
@@ -76,9 +75,9 @@ public class Database extends SQLiteOpenHelper {
         sqLiteDatabase.insert(REMOVED_FILES_COUNT_TABLE, null, contentValues);
 
 
-        sqLiteDatabase.execSQL("create table " + PICTURES_TABLE +
-                " (" + PICTURES_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + PICTURES_TABLE_PATH + " TEXT)");
+        sqLiteDatabase.execSQL("create table " + FILE_TABLE +
+                " (" + FILE_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + FILE_TABLE_PATH + " TEXT)");
 
         sqLiteDatabase.execSQL("create table " + SERVER_TABLE +
                 " (" + SERVER_TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -94,14 +93,14 @@ public class Database extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         Log.d(TAG, "Database.onUpgrade()");
 
-        if (oldVersion == 1 && newVersion == 2) {
-            sqLiteDatabase.execSQL("create table " + REMOVED_FILES_COUNT_TABLE +
-                    " (" + REMOVED_FILES_COUNT_TABLE_VALUE + " INTEGER)");
-
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(REMOVED_FILES_COUNT_TABLE_VALUE, 0);
-            sqLiteDatabase.insert(REMOVED_FILES_COUNT_TABLE, null, contentValues);
-        }
+//        if (oldVersion == 1 && newVersion == 2) {
+//            sqLiteDatabase.execSQL("create table " + REMOVED_FILES_COUNT_TABLE +
+//                    " (" + REMOVED_FILES_COUNT_TABLE_VALUE + " INTEGER)");
+//
+//            ContentValues contentValues = new ContentValues();
+//            contentValues.put(REMOVED_FILES_COUNT_TABLE_VALUE, 0);
+//            sqLiteDatabase.insert(REMOVED_FILES_COUNT_TABLE, null, contentValues);
+//        }
     }
 
     public void setServer(Server server) {
@@ -187,8 +186,8 @@ public class Database extends SQLiteOpenHelper {
     public void addFile(File file) {
         try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues contentValues = new ContentValues();
-            contentValues.put(PICTURES_TABLE_PATH, file.getPath());
-            db.insert(PICTURES_TABLE, null, contentValues);
+            contentValues.put(FILE_TABLE_PATH, file.getPath());
+            db.insert(FILE_TABLE, null, contentValues);
         }
     }
 
@@ -212,7 +211,7 @@ public class Database extends SQLiteOpenHelper {
 
     public void removeFile(File file) {
         try (SQLiteDatabase db = this.getWritableDatabase()) {
-            db.delete(PICTURES_TABLE, PICTURES_TABLE_PATH + " = ?", new String[]{file.getPath()});
+            db.delete(FILE_TABLE, FILE_TABLE_PATH + " = ?", new String[]{file.getPath()});
             incrementRemovedFilesCount();
         }
     }
@@ -237,11 +236,11 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    public List<File> getMedia() {
+    public List<File> getFiles() {
         try (SQLiteDatabase db = this.getWritableDatabase();
-             Cursor cursor = db.rawQuery("select " + PICTURES_TABLE_PATH + " from " + PICTURES_TABLE, null)) {
+             Cursor cursor = db.rawQuery("select " + FILE_TABLE_PATH + " from " + FILE_TABLE, null)) {
 
-            int pathColumnIndex = cursor.getColumnIndex(PICTURES_TABLE_PATH);
+            int pathColumnIndex = cursor.getColumnIndex(FILE_TABLE_PATH);
 
             List<File> files = new ArrayList<>(cursor.getCount());
 
@@ -275,9 +274,9 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    public int getNumberOfFilesToBeUploaded() {
+    public int getNumberOfFiles() {
         try (SQLiteDatabase db = this.getWritableDatabase();
-             Cursor cursor = db.rawQuery("SELECT * FROM " + PICTURES_TABLE + ";", null)) {
+             Cursor cursor = db.rawQuery("SELECT * FROM " + FILE_TABLE + ";", null)) {
             return cursor.getCount();
         }
     }

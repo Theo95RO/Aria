@@ -1,6 +1,8 @@
 package com.gmail.btheo95.aria.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -130,7 +132,9 @@ public class Media {
 
     private static List<File> getAllFilesRecursively(File[] files) {
         List<File> returnedList = new ArrayList<>();
-
+        if (null == files) {
+            return returnedList;
+        }
         for (File file : files) {
             if (file.isDirectory()) {
                 if (!file.getName().equals(".thumbnails") && !file.isHidden()) {
@@ -187,6 +191,29 @@ public class Media {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<File> getMediaToBeUploaded(Context context) {
+        Database db = new Database(context);
+        List<File> filesToUpload = db.getFiles();
+
+        SharedPreferences sharedPreference = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean shouldUploadPhotos = sharedPreference.getBoolean("upload_photos_preference", true);
+        boolean shouldUploadVideos = sharedPreference.getBoolean("upload_videos_preference", false);
+
+        if (shouldUploadPhotos && shouldUploadVideos) {
+            return filesToUpload;
+        } else if (shouldUploadPhotos) {
+            return getPhotoFiles(filesToUpload);
+        } else if (shouldUploadVideos) {
+            return getVideoFiles(filesToUpload);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public static int getMediaToBeUploadedCount(Context context) {
+        return getMediaToBeUploaded(context).size();
     }
 }
 

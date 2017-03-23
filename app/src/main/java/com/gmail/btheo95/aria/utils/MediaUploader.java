@@ -1,7 +1,9 @@
 package com.gmail.btheo95.aria.utils;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
@@ -9,6 +11,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.gmail.btheo95.aria.R;
+import com.gmail.btheo95.aria.activity.MainActivity;
 import com.gmail.btheo95.aria.model.Server;
 import com.gmail.btheo95.aria.network.HttpFileUpload;
 import com.gmail.btheo95.aria.network.Network;
@@ -35,8 +38,6 @@ public class MediaUploader {
 
     private volatile boolean isStopped = false;
 
-    private boolean mShouldUploadPhotos;
-    private boolean mShouldUploadVideos;
     private boolean mShouldShowNotifications;
     private boolean mShouldFreeMemory;
 
@@ -56,44 +57,35 @@ public class MediaUploader {
     public void startUploading() {
         isStopped = false;
         Server server = mDatabase.getServer();
-        if (null == server) {
-            //TODO: notification to select server
+        if (server == null) {
+            notifyNonexistentServer();
             return;
         }
 
         if (!Network.isServerReacheble(server)) {
-            notifyServerNotFound();
+            notifyNonexistentServer();
             return;
         }
 
-        List<File> filesToUpload = mDatabase.getMedia();
+        List<File> filesToUpload = Media.getMediaToBeUploaded(mContext);
         if (filesToUpload.size() == 0) {
             return;
         }
 
         initPreferences();
         mServerURL = getServerURL(server);
-
-        if (mShouldUploadPhotos && mShouldUploadVideos) {
-            uploadFiles(filesToUpload);
-        } else if (mShouldUploadVideos) {
-            List<File> videoFiles = Media.getVideoFiles(filesToUpload);
-            uploadFiles(videoFiles);
-        } else if (mShouldUploadPhotos) {
-            List<File> photoFiles = Media.getPhotoFiles(filesToUpload);
-            uploadFiles(photoFiles);
-        }
+        uploadFiles(filesToUpload);
     }
 
-    private void notifyServerNotFound() {
+    private void notifyNonexistentServer() {
         mNotificationBuilder
-                .setSmallIcon(R.drawable.ic_highlight_off_black_24dp)
-                .setContentTitle("DEBUG")
-                .setContentText("Server not found")
-                .setContentInfo("Info");
+                .setSmallIcon(R.drawable.ic_error_outline_black_24dp)
+                .setContentTitle(mContext.getString(R.string.notification_nonexistent_server_title))
+                .setContentText(mContext.getString(R.string.notification_nonexistent_server_content))
+                .setContentIntent(getMainActivityPendingIntent(R.id.nav_servers))
+                .setAutoCancel(true);
 
         mNotificationManager.notify(Constants.NOTIFICATION_UPLOADING, mNotificationBuilder.build());
-
     }
 
     private void uploadFiles(List<File> filesToUpload) {
@@ -103,8 +95,8 @@ public class MediaUploader {
         try {
 
             for (File file : filesToUpload) {
-                if (mFilesUploadedCounter == 5) {
-                    mFilesToUploadCounter = 5;
+                if (mFilesUploadedCounter == 10) {
+                    mFilesToUploadCounter = 10;
                     uploadFinished();
                     return;
                 }
@@ -147,12 +139,14 @@ public class MediaUploader {
     }
 
     private void initNotifForUpl() {
+
+
         mNotificationBuilder
-                .setSmallIcon(R.drawable.ic_file_upload_black_24dp)
+                .setSmallIcon(R.drawable.ic_cloud_upload_black_24dp)
                 .setOngoing(true)
                 .setColor(ContextCompat.getColor(mContext, R.color.primary))
-                .setContentTitle(mContext.getString(R.string.notification_uploading_now_title));
-        //TODO: onClick -> open app with Status fragment
+                .setContentTitle(mContext.getString(R.string.notification_uploading_now_title))
+                .setContentIntent(getMainActivityPendingIntent(R.id.nav_status));
     }
 
     private void updateNotification() {
@@ -174,18 +168,19 @@ public class MediaUploader {
         }
         if (mFilesSuccefullyUploadedCounter != mFilesToUploadCounter) {
             mNotificationBuilder
-                    .setSmallIcon(R.drawable.ic_highlight_off_black_24dp)
+                    .setSmallIcon(R.drawable.ic_error_outline_black_24dp)
                     .setContentTitle(mContext.getString(R.string.notification_connection_lost_title));
         } else {
             mNotificationBuilder
-                    .setSmallIcon(R.drawable.ic_done_black_24dp)
+                    .setSmallIcon(R.drawable.ic_cloud_done_black_24dp)
                     .setContentTitle(mContext.getString(R.string.notification_upload_finished_title));
         }
 
         mNotificationBuilder
                 .setContentText(mContext.getString(R.string.notification_upload_finished_content, mFilesSuccefullyUploadedCounter))
                 .setOngoing(false)
-                .setProgress(1, 1, false);
+                .setProgress(1, 1, false)
+                .setAutoCancel(true);
 
         mNotificationManager.notify(Constants.NOTIFICATION_UPLOADING, mNotificationBuilder.build());
 
@@ -193,11 +188,22 @@ public class MediaUploader {
 
     private void initPreferences() {
         SharedPreferences sharedPreference = PreferenceManager.getDefaultSharedPreferences(mContext);
-        mShouldUploadPhotos = sharedPreference.getBoolean("upload_photos_preference", true);
-        mShouldUploadVideos = sharedPreference.getBoolean("upload_videos_preference", false);
         mShouldShowNotifications = sharedPreference.getBoolean("show_notification_preference", true);
         mShouldFreeMemory = sharedPreference.getBoolean("free_memory_after_upload_preference", false);
+    }
 
+    private PendingIntent getMainActivityPendingIntent(Integer navItemId) {
+        Intent resultIntent = new Intent(mContext, MainActivity.class);
+        if (navItemId != null) {
+            resultIntent.putExtra(MainActivity.KEY_DEFAULT_NAV_ITEM, navItemId);
+        }
+
+        return PendingIntent.getActivity(
+                mContext,
+                0,
+                resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
     }
 
     private String getServerURL(Server server) {

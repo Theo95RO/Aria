@@ -17,8 +17,8 @@ public class IntroductionActivity extends com.heinrichreimersoftware.materialint
         addSlide(new SimpleSlide.Builder()
                 .title("titlu")
                 .description("descriereee")
-                .background(R.color.colorAccent)
-                .backgroundDark(R.color.colorPrimary)
+                .background(R.color.accent)
+                .backgroundDark(R.color.primary)
                 .permission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .build());
 
@@ -26,8 +26,8 @@ public class IntroductionActivity extends com.heinrichreimersoftware.materialint
         addSlide(new SimpleSlide.Builder()
                 .title("titlu")
                 .description("descriereee")
-                .background(R.color.colorPrimary)
-                .backgroundDark(R.color.colorAccent)
+                .background(R.color.primary)
+                .backgroundDark(R.color.accent)
                 .build());
 
 

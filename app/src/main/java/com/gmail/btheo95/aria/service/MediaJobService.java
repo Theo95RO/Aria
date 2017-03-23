@@ -8,8 +8,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.util.Log;
 
+import com.gmail.btheo95.aria.R;
 import com.gmail.btheo95.aria.utils.Media;
 import com.gmail.btheo95.aria.utils.MediaUploader;
+import com.gmail.btheo95.aria.utils.Permissions;
+import com.permissioneverywhere.PermissionEverywhere;
+import com.permissioneverywhere.PermissionResponse;
 
 import java.util.List;
 
@@ -102,6 +106,25 @@ public class MediaJobService extends JobService {
         @Override
         public void run() {
             Context context = getApplicationContext();
+            PermissionResponse response = null;
+            try {
+                response = PermissionEverywhere.getPermission(getApplicationContext(),
+                        Permissions.allPermissions,
+                        0,
+                        "Notification title",
+                        "This app needs permissions",
+                        R.drawable.ic_error_outline_black_24dp)
+                        .call();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            //waits..
+            boolean isGranted = response.isGranted();
+
+            if (!isGranted) {
+                return;
+            }
             Media.updateData(context);
             mMediaUploader = new MediaUploader(context);
             mMediaUploader.startUploading();
