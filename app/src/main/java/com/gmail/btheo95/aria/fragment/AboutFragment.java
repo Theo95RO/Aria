@@ -17,7 +17,6 @@ import mehdi.sakout.aboutpage.Element;
 
 public class AboutFragment extends Fragment {
 
-    private Context mContext;
     private AboutFragment.OnFragmentInteractionListener mListener;
 
     public AboutFragment() {
@@ -25,8 +24,7 @@ public class AboutFragment extends Fragment {
     }
 
     public static Fragment newInstance() {
-        AboutFragment fragment = new AboutFragment();
-        return fragment;
+        return new AboutFragment();
     }
 
     @Override
@@ -34,9 +32,9 @@ public class AboutFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View contextView = inflater.inflate(R.layout.fragment_about, container, false);
-        mContext = contextView.getContext();
+        Context mContext = contextView.getContext();
 
-        View aboutPage = new AboutPage(mContext)
+        return new AboutPage(mContext)
                 .isRTL(false) // right to left
                 .setDescription(getString(R.string.about_description, getString(R.string.app_name)))
                 .setImage(R.drawable.ic_help_black_24dp)
@@ -49,8 +47,6 @@ public class AboutFragment extends Fragment {
                 .addItem(getCopyRightsElement())
                 .addItem(getLicenseElement())
                 .create();
-
-        return aboutPage;
     }
 
     private Element getLicenseElement() {
@@ -89,7 +85,6 @@ public class AboutFragment extends Fragment {
         }
     }
 
-
     @Override
     public void onDetach() {
         super.onDetach();
@@ -99,6 +94,4 @@ public class AboutFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onLicenseClicked();
     }
-
-
 }

@@ -2,26 +2,36 @@ package com.gmail.btheo95.aria.fragment;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
+import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gmail.btheo95.aria.R;
 import com.gmail.btheo95.aria.adapter.ServerRecyclerViewAdapter;
 import com.gmail.btheo95.aria.model.Server;
 import com.gmail.btheo95.aria.network.Network;
 import com.gmail.btheo95.aria.utils.Database;
+import com.gmail.btheo95.aria.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +55,14 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
     private ScheduledExecutorService mScheduler;
 
     private LinearLayout mLoadingContainer;
-    private LinearLayout mListContainer;
+    private GridLayout mInexistentServerContainer;
 
+    private LinearLayout mListContainer;
     private boolean mActivityIsRunning;
-    private final static int INITIAL_SERVERS_LIST_MESSAGE = 1;
     private final static int SERVERS_LIST_UPDATED_MESSAGE = 0;
+    private final static int INEXISTENT_SERVER_MESSAGE = 2;
+    private boolean mIsInexistentServersLayoutSet = false;
+    private boolean mIsServersListLayoutSet = false;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -59,8 +72,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
     }
 
     public static Fragment newInstance() {
-        ServersFragment fragment = new ServersFragment();
-        return fragment;
+        return new ServersFragment();
     }
 
     @Override
@@ -81,7 +93,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         if (mScheduler == null || mScheduler.isShutdown()) {
             mScheduler = Executors.newScheduledThreadPool(1);
         }
-        mScheduler.scheduleWithFixedDelay(new ServersSearcher(SERVERS_LIST_UPDATED_MESSAGE), 0, 5, TimeUnit.SECONDS);
+        mScheduler.scheduleWithFixedDelay(new ServersSearcher(), 0, 5, TimeUnit.SECONDS);
         Log.d(TAG, "onStart()");
     }
 
@@ -90,14 +102,15 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         Log.d(TAG, "onStop()");
         mActivityIsRunning = false;
         mScheduler.shutdown();
-        //TODO: Stop threads that are searching for servers
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
-        mScheduler.shutdownNow();
+        if (mScheduler != null) {
+            mScheduler.shutdownNow();
+        }
         super.onDestroy();
     }
 
@@ -117,14 +130,49 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         mLoadingContainer = (LinearLayout) view.findViewById(R.id.servers_loading_container);
         mListContainer = (LinearLayout) view.findViewById(R.id.servers_list_container);
         mListContainer.setVisibility(View.GONE);
+        mInexistentServerContainer = (GridLayout) view.findViewById(R.id.fragment_about_inexistent_server_layout);
+        mInexistentServerContainer.setVisibility(View.GONE);
+
+        Button copyButton = (Button) view.findViewById(R.id.fragment_servers_button_copy);
+        Button shareButton = (Button) view.findViewById(R.id.fragment_servers_button_share);
+
+        copyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleCopyButtonClick();
+            }
+        });
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleShareButtonClick();
+            }
+        });
+
+        TextView serverUrlTextView = (TextView) view.findViewById(R.id.fragment_servers_url);
+        String serverUrlString = getString(R.string.server_download_url);
+        SpannableString spannableString = new SpannableString(serverUrlString);
+        spannableString.setSpan(new RelativeSizeSpan(4f), 0, serverUrlString.length(), 0); // set size
+        serverUrlTextView.setText(spannableString);
 
         instantiateHandler();
 
-//        AVLoadingIndicatorView avi = (AVLoadingIndicatorView) view.findViewById(R.id.avi);
-//        avi.hide();
-
-        mScheduler.submit(new ServersSearcher(INITIAL_SERVERS_LIST_MESSAGE));
         return view;
+    }
+
+    private void handleCopyButtonClick() {
+        Utils.copyToClipboard(mContext, getString(R.string.server_download_url), getString(R.string.server_download_url));
+        Toast.makeText(mContext, "URL Copied", Toast.LENGTH_SHORT).show(); //TODO: get string from resources
+    }
+
+    private void handleShareButtonClick() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.server_download_url));
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, "text no_servers_container")); //TODO: get string from resources
+
     }
 
 
@@ -150,19 +198,28 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
                 }
 
                 switch (msg.what) {
-
-                    case INITIAL_SERVERS_LIST_MESSAGE:
-                        Log.d(TAG, "INITIAL_SERVERS_LIST_MESSAGE");
-                        changeViewContainers();
+//
+//                    case INITIAL_SERVERS_LIST_MESSAGE:
+//                        Log.d(TAG, "INITIAL_SERVERS_LIST_MESSAGE");
+//                        changeViewContainers();
 
                     case SERVERS_LIST_UPDATED_MESSAGE:
-//                        Log.d(TAG, "updateing list of servers");
-//                        mListOfServers.clear();
-//                        mListOfServers.addAll((Collection<? extends Server>) msg.obj);
-//                        Log.d(TAG, "number of items in new list: " + ((Collection<? extends Server>) msg.obj).size());
-//                        mAdapter.notifyDataSetChanged();
+
                         Log.d(TAG, "SERVERS_LIST_UPDATED_MESSAGE");
                         mAdapter.changeData((List<Server>) msg.obj);
+
+                        if (!mIsServersListLayoutSet) {
+                            displayServersListLayout();
+                            mIsServersListLayoutSet = true;
+                            mIsInexistentServersLayoutSet = false;
+                        }
+                        break;
+
+                    case INEXISTENT_SERVER_MESSAGE:
+                        if (!mIsInexistentServersLayoutSet) {
+                            displayInexistentServersLayout();
+                            mIsInexistentServersLayoutSet = true;
+                        }
                         break;
 
                     default:
@@ -172,45 +229,130 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         };
     }
 
-    private void changeViewContainers() {
+    private void displayServersListLayout() {
         final int shortAnimationTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        final int translationYValue = 120;
-        mLoadingContainer.animate()
-                .translationYBy(-translationYValue)
-                .alpha(0.0f)
-                .setDuration(shortAnimationTime)
-                .setInterpolator(new AnticipateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
+        final int yTranslation = 120;
+        List<Animator> animationsList = new ArrayList<>();
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        mLoadingContainer.setVisibility(View.GONE);
-                        mListContainer.setY(translationYValue);
+        if (mLoadingContainer.getVisibility() == View.VISIBLE) {
+            animationsList.addAll(getFlyOutAnimatorsForView(mLoadingContainer));
+        }
 
-                        mListContainer.setAlpha(0.0f);
-                        mListContainer.setVisibility(View.VISIBLE);
-                        mListContainer.animate()
-                                .translationY(0)
-                                .alpha(1.0f)
-                                .setDuration(shortAnimationTime)
-                                .setInterpolator(new FastOutSlowInInterpolator());
+        if (mInexistentServerContainer.getVisibility() == View.VISIBLE) {
+            ObjectAnimator animatorAlphaInexistentServerContainer = ObjectAnimator.ofFloat(mInexistentServerContainer, "alpha", 1f, 0f);
+            animatorAlphaInexistentServerContainer.setDuration(shortAnimationTime);
+            animatorAlphaInexistentServerContainer.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mInexistentServerContainer.setVisibility(View.GONE);
+                }
+            });
+            animationsList.add(animatorAlphaInexistentServerContainer);
+        }
 
-                    }
-                });
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animationsList);
+        animatorSet.start();
+
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mListContainer.setY(yTranslation);
+                mListContainer.setAlpha(0.0f);
+                mListContainer.setVisibility(View.VISIBLE);
+                mListContainer.animate()
+                        .translationY(0)
+                        .alpha(1.0f)
+                        .setDuration(shortAnimationTime)
+                        .setInterpolator(new FastOutSlowInInterpolator());
+            }
+        });
+
     }
+
+    private List<Animator> getFlyOutAnimatorsForView(final View view) {
+        final int shortAnimationTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        List<Animator> animationsList = new ArrayList<>();
+
+        ObjectAnimator animatorAlpha = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+        animatorAlpha.setDuration(shortAnimationTime);
+
+        ObjectAnimator animatorY = ObjectAnimator.ofFloat(view, "y", view.getY(), view.getY() - (view.getHeight() / 2));
+        animatorY.setDuration(shortAnimationTime);
+        animatorY.setInterpolator(new AnticipateInterpolator());
+        animatorY.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.setVisibility(View.GONE);
+            }
+        });
+
+        animationsList.add(animatorAlpha);
+        animationsList.add(animatorY);
+
+        return animationsList;
+    }
+
+    private void displayInexistentServersLayout() {
+        final int shortAnimationTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        ObjectAnimator animatorLoadingContainer = ObjectAnimator.ofFloat(mLoadingContainer, "alpha", 1f, 0f, 1f);
+        animatorLoadingContainer.setDuration(2 * shortAnimationTime);
+
+        ObjectAnimator animatorInexistentServerContainer = ObjectAnimator.ofFloat(mInexistentServerContainer, "alpha", 0f, 1f);
+        animatorInexistentServerContainer.setStartDelay(shortAnimationTime);
+        animatorInexistentServerContainer.setDuration(shortAnimationTime);
+        animatorInexistentServerContainer.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mInexistentServerContainer.setAlpha(0f);
+                mInexistentServerContainer.setVisibility(View.VISIBLE);
+            }
+        });
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animatorLoadingContainer, animatorInexistentServerContainer);
+        animatorSet.start();
+    }
+
+//    private void changeViewContainers() {
+//        final int shortAnimationTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+//        final int translationYValue = 120;
+//        mLoadingContainer.animate()
+//                .translationYBy(-translationYValue)
+//                .alpha(0.0f)
+//                .setDuration(shortAnimationTime)
+//                .setInterpolator(new AnticipateInterpolator())
+//                .setListener(new AnimatorListenerAdapter() {
+//
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        super.onAnimationEnd(animation);
+//                        mLoadingContainer.setVisibility(View.GONE);
+//                        mListContainer.setY(translationYValue);
+//
+//                        mListContainer.setAlpha(0.0f);
+//                        mListContainer.setVisibility(View.VISIBLE);
+//                        mListContainer.animate()
+//                                .translationY(0)
+//                                .alpha(1.0f)
+//                                .setDuration(shortAnimationTime)
+//                                .setInterpolator(new FastOutSlowInInterpolator());
+//
+//                    }
+//                });
+//    }
 
     @Override
     public void onRecyclerItemClick(Server item) {
+        //TODO: restart service
         mDatabase.setServer(item);
     }
 
     private class ServersSearcher implements Runnable {
 
-        private final int message;
-
-        ServersSearcher(int message) {
-            this.message = message;
+        ServersSearcher() {
         }
 
         @Override
@@ -219,27 +361,20 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
             List<Server> updatedListOfServers = Network.getLocalServersList(getActivity());
             Log.v(TAG, "stopped searching for servers");
 
-//            Server dummy01 = new Server("dummy01", "dummy01", "dummy01", true, "dummy01");
-//            Server dummy02 = new Server("dummy02", "dummy02", "dummy02", true, "dummy02");
-//            Server dummy03 = new Server("dummy03", "dummy03", "dummy03", true, "dummy03");
-//            Server dummy04 = new Server("dummy04", "dummy04", "dummy06", true, "dummy04");
-//            Server dummy05 = new Server("dummy05", "dummy05", "dummy05", true, "dummy05");
-//            Server dummy06 = new Server("dummy06", "dummy06", "dummy06", true, "dummy06");
-//            updatedListOfServers.add(dummy01);
-//            updatedListOfServers.add(dummy02);
-//            updatedListOfServers.add(dummy03);
-//            updatedListOfServers.add(dummy04);
-//            updatedListOfServers.add(dummy05);
-//            updatedListOfServers.add(dummy06);
-
             Server defaultServer = mDatabase.getServer();
+            int what = SERVERS_LIST_UPDATED_MESSAGE;
 
             if (defaultServer == null) {
-                if (updatedListOfServers.size() >= 1) {
-                    defaultServer = updatedListOfServers.get(0);
-                    mDatabase.setServer(defaultServer);
-                    mAdapter.setDefaultServer(defaultServer);
+                if (updatedListOfServers.size() == 0) {
+                    what = INEXISTENT_SERVER_MESSAGE;
                 }
+//                if (updatedListOfServers.size() >= 1) {
+//                    defaultServer = updatedListOfServers.get(0);
+//                    mDatabase.setServer(defaultServer);
+//                    mAdapter.setDefaultServer(defaultServer);
+//                } else {
+//                    what = INEXISTENT_SERVER_MESSAGE;
+//                }
             } else {
                 if (!updatedListOfServers.contains(defaultServer)) {
                     updatedListOfServers.add(0, defaultServer);
@@ -247,7 +382,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
             }
 
             Message message = new Message();
-            message.what = this.message;
+            message.what = what;
             message.obj = updatedListOfServers;
             mHandler.sendMessage(message);
         }

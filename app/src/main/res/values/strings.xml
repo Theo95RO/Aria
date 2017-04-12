@@ -50,8 +50,13 @@
     <string name="fab_prompt_secondary_text">Tap the button to upload to your PC a specific file from your device.</string>
 
     <!--Strings related to Servers fragment-->
-    <string name="loading_text"><b>Loading...</b></string>
+    <string name="searching_text"><b>Searching...</b></string>
     <string name="servers"><b>Servers</b></string>
+    <string name="fragment_servers_inexistent_server_description">No server found. Please install the server on your PC by accessing the following URL:</string>
+    <string name="fragment_servers_copy_url_text">Copy to clipboard:</string>
+    <string name="fragment_servers_share_url_text">Share URL:</string>
+    <string name="fragment_servers_copy_url_button">Copy</string>
+    <string name="fragment_servers_share_url_button">Share</string>
 
     <!--Strings related to about fragment-->
     <string name="about_version">Version 0.1</string>
@@ -61,6 +66,14 @@
     <string name="about_license">Read license</string>
     <string name="about_description">%1$s is an app that helps you to automatically back-up your photos and videos to your PC when you connect to your local wi-fi. It also helps you to upload custom files, picked up by you so you don\'t have to plug-in your data cable.</string>
 
+    <!--Strings related to Status fragment-->
+    <string name="status_chart_entry_uploaded">Uploaded</string>
+    <string name="status_chart_entry_to_be_uploaded">Remaining to upload</string>
+    <string name="status_chart_data_set_label"># photos</string>
+
+    <!--Strings related to license fragment-->
+    <string name="fragment_license_title">License</string>
+
     <!--Strings related to notifications-->
     <string name="notification_uploading_now_title">Uploading Media</string>
     <string name="notification_uploading_now_content">%1$d of %2$d</string>
@@ -69,4 +82,7 @@
     <string name="notification_upload_finished_content">Uploaded: %1$d</string>
     <string name="notification_nonexistent_server_title">Nonexistent Server</string>
     <string name="notification_nonexistent_server_content">Click notification to select a server</string>
+    <string name="notification_permissions_title">Nonexistent Server</string>
+    <string name="notification_permissions_content">Click notification to select a server</string>
+
 </resources>

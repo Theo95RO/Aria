@@ -106,29 +106,35 @@ public class MediaJobService extends JobService {
         @Override
         public void run() {
             Context context = getApplicationContext();
-            PermissionResponse response = null;
-            try {
-                response = PermissionEverywhere.getPermission(getApplicationContext(),
-                        Permissions.allPermissions,
-                        0,
-                        "Notification title",
-                        "This app needs permissions",
-                        R.drawable.ic_error_outline_black_24dp)
-                        .call();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return;
-            }
-            //waits..
-            boolean isGranted = response.isGranted();
-
-            if (!isGranted) {
+            if (!arePermissionGranted(context)) {
                 return;
             }
             Media.updateData(context);
             mMediaUploader = new MediaUploader(context);
             mMediaUploader.startUploading();
             MediaJobService.this.jobFinished(mJobParameters, false);
+        }
+
+        private boolean arePermissionGranted(Context context) {
+            PermissionResponse response = null;
+            try {
+                response = PermissionEverywhere.getPermission(getApplicationContext(),
+                        Permissions.allPermissions,
+                        0,
+                        context.getString(R.string.notification_permissions_title),
+                        context.getString(R.string.notification_permissions_content),
+                        R.drawable.ic_error_outline_black_24dp)
+                        .call();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            if (response == null) {
+                return false;
+            }
+            //waits...
+            return response.isGranted();
         }
 
         void stop() {

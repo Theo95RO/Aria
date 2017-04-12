@@ -1,37 +1,40 @@
 package com.gmail.btheo95.aria.fragment;
 
-import android.app.Fragment;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.webkit.WebViewFragment;
+
+import com.gmail.btheo95.aria.R;
 
 /**
  * Created by btheo on 28.02.2017.
  */
 
-public class LicenseFragment extends WebViewFragment {
+public class LicenseFragment extends DialogFragment {
 
     public LicenseFragment() {
         // Required empty public constructor
     }
 
-    public static Fragment newInstance() {
-        LicenseFragment fragment = new LicenseFragment();
-        return fragment;
+    public static LicenseFragment newInstance() {
+        return new LicenseFragment();
     }
 
+    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        WebView webView = (WebView) super.onCreateView(inflater, container, savedInstanceState);
-        webView.loadUrl("file:///android_asset/license.html");
-        return webView;
+        WebView view = (WebView) LayoutInflater.from(getActivity()).inflate(R.layout.fragment_license, null);
+        view.loadUrl("file:///android_asset/license.html");
+        return new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                .setTitle(getString(R.string.fragment_license_title))
+                .setView(view)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
     }
-
-
 }
 

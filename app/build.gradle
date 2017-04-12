@@ -8,8 +8,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
-        versionName "0.1"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        versionName "0.1-beta"
+        testInstrumentationRunner "android.support.no_servers_container.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {

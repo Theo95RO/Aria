@@ -17,13 +17,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -48,29 +44,29 @@ public class Network {
                 (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
     }
 
-    public static String getMacAdressFromIp(String ip) throws SocketException, UnknownHostException {
-        return getMacAdressFromIp(InetAddress.getByName(ip));
-    }
-
-    public static String getMacAdressFromIp(IPv4 ip) throws SocketException, UnknownHostException {
-        return getMacAdressFromIp(ip.toString());
-    }
-
-    public static String getMacAdressFromIp(InetAddress ip) throws SocketException {
-
-
-        NetworkInterface network = NetworkInterface.getByName(ip.getCanonicalHostName());
-
-        return "randomMacAdress";
-//        byte[] mac = network.getHardwareAddress();
+//    public static String getMacAdressFromIp(String ip) throws SocketException, UnknownHostException {
+//        return getMacAdressFromIp(InetAddress.getByName(ip));
+//    }
 //
-//        StringBuilder sb = new StringBuilder();
-//        for (int i = 0; i < mac.length; i++) {
-//            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-//        }
+//    public static String getMacAdressFromIp(IPv4 ip) throws SocketException, UnknownHostException {
+//        return getMacAdressFromIp(ip.toString());
+//    }
 //
-//        return sb.toString();
-    }
+//    public static String getMacAdressFromIp(InetAddress ip) throws SocketException {
+//
+//
+//        NetworkInterface network = NetworkInterface.getByName(ip.getCanonicalHostName());
+//
+//        return "randomMacAdress";
+////        byte[] mac = network.getHardwareAddress();
+////
+////        StringBuilder sb = new StringBuilder();
+////        for (int i = 0; i < mac.length; i++) {
+////            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+////        }
+////
+////        return sb.toString();
+//    }
 
     public static List<Server> getServerIps(Context context) {
         return getServerIps(context);
@@ -85,14 +81,14 @@ public class Network {
         return getServersList(new IPv4(ip));
     }
 
-    public static List<Server> getServersList(IPv4 currentDiviceIp) {
+    public static List<Server> getServersList(IPv4 currentDeviceIp) {
         //TODO: sa arunc exceptie daca nu e conexiune la net?
 
         List<Server> serverIpsList = new ArrayList<>();
 
         final ExecutorService es = Executors.newFixedThreadPool(20);
 
-        IPv4 ip = new IPv4(currentDiviceIp);
+        IPv4 ip = new IPv4(currentDeviceIp);
         ip.setCell4((short) 0);
 
         final List<Future<Server>> futures = new ArrayList<>();
@@ -112,7 +108,7 @@ public class Network {
                     serverIpsList.add(f.get());
                 }
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                return null;
             }
         }
 

@@ -93,7 +93,7 @@ public class StatusFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        mScheduler.shutdownNow();
+//        mScheduler.shutdownNow();
         super.onDestroy();
     }
 
@@ -127,11 +127,11 @@ public class StatusFragment extends Fragment {
         @Override
         public void run() {
             PieEntry[] entries = new PieEntry[]{
-                    new PieEntry(mDatabase.getRemovedFilesCount(), "uploaded"),
-                    new PieEntry(Media.getMediaToBeUploadedCount(mContext), "to be uploaded")
+                    new PieEntry(mDatabase.getRemovedFilesCount(), getString(R.string.status_chart_entry_uploaded)),
+                    new PieEntry(Media.getMediaToBeUploadedCount(mContext), getString(R.string.status_chart_entry_to_be_uploaded))
             };
 
-            PieDataSet dataSet = new PieDataSet(Arrays.asList(entries), "# of photos");
+            PieDataSet dataSet = new PieDataSet(Arrays.asList(entries), getString(R.string.status_chart_data_set_label));
             dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
 
             PieData pieData = new PieData(dataSet);

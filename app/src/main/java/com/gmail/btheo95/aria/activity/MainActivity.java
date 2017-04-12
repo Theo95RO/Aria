@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity
         ActivityManager.TaskDescription taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, ContextCompat.getColor(this, R.color.primary_recent));
         setTaskDescription(taskDesc);
     }
+
     private void initialiseViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-//        mHamburgerToggle.syncState();
+        mHamburgerToggle.syncState();
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -215,8 +216,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLicenseClicked() {
-        setMainFragmentWithoutAnimation(LicenseFragment.newInstance());
-        //TODO: popup
+        LicenseFragment dialog = LicenseFragment.newInstance();
+        dialog.show(getFragmentManager(), "LicensesDialog"); //TODO: set tag
     }
 
     private void setTargetPromptForFAB() {
