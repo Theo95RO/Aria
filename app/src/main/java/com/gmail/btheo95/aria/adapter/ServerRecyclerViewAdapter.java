@@ -29,7 +29,7 @@ public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecycl
     private Server mDefaultServer;
 
     private RadioButton lastChecked = null;
-    private int lastCheckedPosition = 0;
+    private int lastCheckedPosition = -1;
 
     private final RecyclerItemClickListener mListener;
 

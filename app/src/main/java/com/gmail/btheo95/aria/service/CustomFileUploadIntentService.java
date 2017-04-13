@@ -7,9 +7,13 @@ import android.util.Log;
 
 import com.gmail.btheo95.aria.model.Server;
 import com.gmail.btheo95.aria.network.HttpFileUpload;
+import com.gmail.btheo95.aria.network.Network;
+import com.gmail.btheo95.aria.utils.Constants;
 import com.gmail.btheo95.aria.utils.Database;
+import com.gmail.btheo95.aria.utils.Notifications;
 import com.gmail.btheo95.aria.utils.Permissions;
 import com.gmail.btheo95.aria.utils.Utils;
+import com.jaredrummler.android.device.DeviceName;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,33 +47,47 @@ public class CustomFileUploadIntentService extends IntentService {
     }
 
     private void handleActionUpload(String path) {
+        Context context = getApplicationContext();
+        Database db = new Database(context);
+        Server server = db.getServer();
         File file = new File(path);
         if (!Permissions.arePermissionGrantedInBackgroud(getApplicationContext())) {
             return;
         }
 
-//        if (file == null || !file.exists()) {
-//            //TODO: notification
-//            return;
-//        }
+        if (server == null) {
+            Notifications.showNoServerFoundNotification(context, Constants.NOTIFICATION_UPLOADING);
+            return;
+        }
 
-        //TODO: start notification
+        if (!Network.isDeviceConnectedToWifi(context)) {
+            Notifications.showNotificationNoWifi(context, Constants.NOTIFICATION_CUSTOM_FILE_UPLOAD_ID);
+            return;
+        }
 
-        Context context = getApplicationContext();
-        Database db = new Database(context);
-        Server server = db.getServer();
+        if (!Network.isServerReacheble(server)) {
+            Notifications.showNotificationServerNotReacheble(context, Constants.NOTIFICATION_CUSTOM_FILE_UPLOAD_ID);
+            return;
+        }
+
+        Notifications.showNotificationUploadingCustomFile(context, Constants.NOTIFICATION_CUSTOM_FILE_UPLOAD_ID);
 
         try {
-            String url = "http://" + server.getIp() + ":" + server.getPort() + "/uploadCustomFile/" + Utils.getDeviceImei(getApplicationContext());
+            String deviceNameAndIMEI = DeviceName.getDeviceName() + " - " + Utils.getDeviceImei(getApplicationContext());
+            String url = "http://" + server.getIp() + ":" + server.getPort() + "/uploadCustomFile/" + deviceNameAndIMEI;
+            url = url.replaceAll(" ", "_");
+
             Log.d(TAG, url);
             Log.d(TAG, file.getPath());
 
             HttpFileUpload uploader = new HttpFileUpload(url);
             uploader.sendNow(file);
-            //TODO: finish notification
+            Notifications.showNotificationUploadingCustomFileFinished(context, Constants.NOTIFICATION_CUSTOM_FILE_UPLOAD_ID);
+
         } catch (IOException e) {
             Log.d(TAG, "error");
-            //TODO: error notification
+            Notifications.showNotificationUploadingCustomFileFailed(context, Constants.NOTIFICATION_CUSTOM_FILE_UPLOAD_ID);
+
         }
     }
 }

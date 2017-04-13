@@ -310,34 +310,6 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
         animatorSet.start();
     }
 
-//    private void changeViewContainers() {
-//        final int shortAnimationTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-//        final int translationYValue = 120;
-//        mLoadingContainer.animate()
-//                .translationYBy(-translationYValue)
-//                .alpha(0.0f)
-//                .setDuration(shortAnimationTime)
-//                .setInterpolator(new AnticipateInterpolator())
-//                .setListener(new AnimatorListenerAdapter() {
-//
-//                    @Override
-//                    public void onAnimationEnd(Animator animation) {
-//                        super.onAnimationEnd(animation);
-//                        mLoadingContainer.setVisibility(View.GONE);
-//                        mListContainer.setY(translationYValue);
-//
-//                        mListContainer.setAlpha(0.0f);
-//                        mListContainer.setVisibility(View.VISIBLE);
-//                        mListContainer.animate()
-//                                .translationY(0)
-//                                .alpha(1.0f)
-//                                .setDuration(shortAnimationTime)
-//                                .setInterpolator(new FastOutSlowInInterpolator());
-//
-//                    }
-//                });
-//    }
-
     @Override
     public void onRecyclerItemClick(Server item) {
         //TODO: restart service
@@ -362,13 +334,6 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
                 if (updatedListOfServers.size() == 0) {
                     what = INEXISTENT_SERVER_MESSAGE;
                 }
-//                if (updatedListOfServers.size() >= 1) {
-//                    defaultServer = updatedListOfServers.get(0);
-//                    mDatabase.setServer(defaultServer);
-//                    mAdapter.setDefaultServer(defaultServer);
-//                } else {
-//                    what = INEXISTENT_SERVER_MESSAGE;
-//                }
             } else {
                 if (!updatedListOfServers.contains(defaultServer)) {
                     updatedListOfServers.add(0, defaultServer);

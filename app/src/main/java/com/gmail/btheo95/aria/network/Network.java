@@ -1,6 +1,7 @@
 package com.gmail.btheo95.aria.network;
 
 import android.content.Context;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.util.Pair;
@@ -185,6 +186,20 @@ public class Network {
             return true;
         } catch (IOException e) {
             return false; // Either timeout or unreachable or failed DNS lookup.
+        }
+    }
+
+    public static boolean isDeviceConnectedToWifi(Context context) {
+        WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiMgr.isWifiEnabled()) { // Wi-Fi adapter is ON
+            WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+            if (wifiInfo.getNetworkId() == -1) {
+                return false; // Not connected to an access point
+            }
+            return true; // Connected to an access point
+        } else {
+            return false; // Wi-Fi adapter is OFF
         }
     }
 }

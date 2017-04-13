@@ -9,4 +9,7 @@ public class Constants {
     public static final int TIMEOUT_FOR_SERVER_CHECKING = 200;
 
     public static final int NOTIFICATION_UPLOADING = 0;
+    public static final int NOTIFICATION_CUSTOM_FILE_UPLOAD_ID = 1;
+
+
 }

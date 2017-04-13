@@ -1,6 +1,13 @@
 package com.gmail.btheo95.aria.network;
 
+import android.content.Context;
 import android.util.Pair;
+
+import com.gmail.btheo95.aria.model.Server;
+import com.gmail.btheo95.aria.utils.Constants;
+import com.gmail.btheo95.aria.utils.Database;
+import com.gmail.btheo95.aria.utils.Utils;
+import com.jaredrummler.android.device.DeviceName;
 
 import java.io.IOException;
 
@@ -36,7 +43,16 @@ public class HttpRequest {
         return request.first == 200 && request.second.equals("true");
     }
 
-    private static String urlFromIpAndPort(String ip, String port) {
+    public static String urlFromIpAndPort(String ip, String port) {
         return "http://" + ip + ":" + port;
+    }
+
+    public static String serverUrlForMediaUpload(Context context) {
+        Database db = new Database(context);
+        Server server = db.getServer();
+        String deviceNameAndIMEI = DeviceName.getDeviceName() + " - " + Utils.getDeviceImei(context);
+        String serverURL = ("http://" + server.getIp() + ":" + Constants.SERVER_PORT + "/uploadPhoto/" + deviceNameAndIMEI);
+        serverURL = serverURL.replaceAll(" ", "_");
+        return serverURL;
     }
 }

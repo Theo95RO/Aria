@@ -85,5 +85,14 @@
     <string name="notification_nonexistent_server_content">Click notification to select a server</string>
     <string name="notification_permissions_title">Nonexistent Server</string>
     <string name="notification_permissions_content">Click notification to select a server</string>
-
+    <string name="notification_no_wifi_title">Wi-fi not connected</string>
+    <string name="notification_no_wifi_content">Connect to a wi-fi network to upload a file</string>
+    <string name="notification_server_not_reacheble_title">Server not reacheble</string>
+    <string name="notification_server_not_reacheble_content">Server should be online to upload a file</string>
+    <string name="notification_uploading_custom_file_title">Uploading file</string>
+    <string name="notification_uploading_custom_file_content">Uploading a selected file to the server</string>
+    <string name="notification_uploading_custom_file_finished_title">Upload complete</string>
+    <string name="notification_uploading_custom_file_finished_content">File uploaded succefully to the server</string>
+    <string name="notification_uploading_custom_file_failed_title">Upload failed</string>
+    <string name="notification_uploading_custom_file_failed_content">An error has occurred</string>
 </resources>
