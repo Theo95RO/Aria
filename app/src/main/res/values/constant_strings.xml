@@ -4,5 +4,6 @@
     <!--suppress MissingTranslation -->
     <string name="version">0.1-beta</string>
     <string name="server_download_url">test.ro</string>
+    <string name="server_download_http_url">http://test.ro</string>
 
 </resources>

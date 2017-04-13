@@ -27,7 +27,6 @@
         <service
             android:name=".service.MediaService"
             android:exported="false" />
-
         <service
             android:name=".service.MediaJobService"
             android:exported="true"
@@ -43,16 +42,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.IntroductionActivity"
             android:theme="@style/Theme.Intro" />
-
         <activity
             android:name=".activity.IntroActivity"
             android:theme="@style/Theme.Intro" />
 
-
+        <service
+            android:name=".service.CustomFileUploadIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

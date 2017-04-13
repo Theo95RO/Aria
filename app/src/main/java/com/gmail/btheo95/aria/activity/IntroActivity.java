@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.gmail.btheo95.aria.R;
 import com.gmail.btheo95.aria.utils.Permissions;
+import com.gmail.btheo95.aria.utils.Utils;
 
 import agency.tango.materialintroscreen.MaterialIntroActivity;
 import agency.tango.materialintroscreen.MessageButtonBehaviour;
@@ -34,15 +35,15 @@ public class IntroActivity extends MaterialIntroActivity {
         addSlide(new SlideFragmentBuilder()
                 .backgroundColor(R.color.intro_2_background)
                 .buttonsColor(R.color.intro_2_buttons)
-                .title(getString(R.string.intro_2_title))
+                        .title(getString(R.string.server_download_url))
                 .description(getString(R.string.intro_2_description))
                 .image(R.drawable.ic_direction)
                 .build(),
                 new MessageButtonBehaviour(new View.OnClickListener(){
                     @Override
                     public void onClick(View view) {
-                        copyDownloadUrlToClipboard();
-                        showMessage(getString(R.string.toast_after_button_download_click));
+                        shareUrl();
+//                        showMessage(getString(R.string.toast_after_button_download_click));
                     }
                 }, getString(R.string.button_download_link_text))
         );
@@ -56,6 +57,10 @@ public class IntroActivity extends MaterialIntroActivity {
                 .neededPermissions(Permissions.allPermissions)
                 .build());
 
+    }
+
+    private void shareUrl() {
+        Utils.startShareIntent(this, getString(R.string.intro_2_intent_share_url_title), getString(R.string.server_download_http_url));
     }
 
 

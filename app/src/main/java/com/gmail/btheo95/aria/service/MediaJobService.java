@@ -26,8 +26,6 @@ public class MediaJobService extends JobService {
     public static final String TAG = MediaJobService.class.getSimpleName();
 
     public static final int JOB_NEW_MEDIA = 0;
-    public static final int JOB_UPLOAD_MEDIA = 1;
-
     private Worker mWorker;
 
     @Override
@@ -61,7 +59,6 @@ public class MediaJobService extends JobService {
         if (result == JobScheduler.RESULT_SUCCESS) {
             Log.d(TAG, "Job scheduled successfully!");
         }
-
     }
 
     public static void startNewMediaJobIfNotPending(Context context) {

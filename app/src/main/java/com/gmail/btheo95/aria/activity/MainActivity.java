@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -29,7 +30,9 @@ import com.gmail.btheo95.aria.fragment.LicenseFragment;
 import com.gmail.btheo95.aria.fragment.ServersFragment;
 import com.gmail.btheo95.aria.fragment.SettingsFragment;
 import com.gmail.btheo95.aria.fragment.StatusFragment;
+import com.gmail.btheo95.aria.service.CustomFileUploadIntentService;
 import com.gmail.btheo95.aria.service.MediaJobService;
+import com.gmail.btheo95.aria.utils.FileUtils;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
@@ -184,8 +187,10 @@ public class MainActivity extends AppCompatActivity
             }
         } else if (requestCode == REQUEST_CODE_PICK_FILE) {
             if (resultCode == RESULT_OK) {
-                // TODO: upload the file. Schedule JobService
-                Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG).show();
+                Uri uri = data.getData();
+                String path = FileUtils.getPath(this, uri);
+                CustomFileUploadIntentService.startActionUpload(getBaseContext(), path);
+//                Toast.makeText(this, "A file has been selected", Toast.LENGTH_LONG).show();
             }
         }
 

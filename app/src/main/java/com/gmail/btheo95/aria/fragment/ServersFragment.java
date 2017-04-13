@@ -6,7 +6,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -167,12 +166,7 @@ public class ServersFragment extends Fragment implements ServerRecyclerViewAdapt
     }
 
     private void handleShareButtonClick() {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.server_download_url));
-        sendIntent.setType("text/plain");
-        startActivity(Intent.createChooser(sendIntent, "text no_servers_container")); //TODO: get string from resources
-
+        Utils.startShareIntent(mContext, getString(R.string.intro_2_intent_share_url_title), getString(R.string.server_download_http_url));
     }
 
 

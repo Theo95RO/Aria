@@ -39,9 +39,10 @@
     <string name="intro_1_description">This app helps you to automatically backup your photos to your PC</string>
     <string name="intro_2_title">test.ro</string>
     <string name="intro_2_description">Access this URL from your PC to donwload the server</string>
+    <string name="intro_2_intent_share_url_title">Share URL</string>
     <string name="intro_3_title">Permissions</string>
     <string name="intro_3_description">In order for this app to work, you need to grand the permissions. \"Write External Storage\" is needed for the app to search for photos. \"Read Phone State\" is needed for the server to identify your device.</string>
-    <string name="button_download_link_text">Copy URL</string>
+    <string name="button_download_link_text">Share URL</string>
     <string name="toast_after_button_download_click">URL Copied to clipboard</string>
     <string name="URL_download">http://test.ro</string>
 

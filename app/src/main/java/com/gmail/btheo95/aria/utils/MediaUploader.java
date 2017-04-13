@@ -95,8 +95,15 @@ public class MediaUploader {
         try {
 
             for (File file : filesToUpload) {
-                if (mFilesUploadedCounter == 10) {
-                    mFilesToUploadCounter = 10;
+                if (!file.exists() || file.isDirectory()) {
+                    mDatabase.removeFile(file);
+                    continue;
+                }
+                Log.v(TAG, "Uploading file with path: " + file.getPath());
+                Log.v(TAG, "Uploading file with size: " + file.length());
+
+                if (mFilesUploadedCounter == 1) {
+                    mFilesToUploadCounter = 1;
                     uploadFinished();
                     return;
                 }
