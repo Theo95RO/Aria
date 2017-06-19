@@ -19,7 +19,6 @@ import java.util.List;
  ///////////
  * TODO: Replace the implementation with code for your data type.
  */
-///////////* specified {@link OnListFragmentInteractionListener}.
 
 
 public class ServerRecyclerViewAdapter extends RecyclerView.Adapter<ServerRecyclerViewAdapter.ViewHolder> {

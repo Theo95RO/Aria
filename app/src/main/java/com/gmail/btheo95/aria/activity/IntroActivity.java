@@ -1,7 +1,6 @@
 package com.gmail.btheo95.aria.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -78,16 +77,6 @@ public class IntroActivity extends MaterialIntroActivity {
                 getParent().setResult(Activity.RESULT_OK);
             }
         }
-
         super.onFinish();
     }
-
-    private void copyDownloadUrlToClipboard() {
-
-        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", getString(R.string.URL_download));
-        clipboard.setPrimaryClip(clip);
-
-    }
-
 }

@@ -102,11 +102,13 @@ public class MediaUploader {
                 Log.v(TAG, "Uploading file with path: " + file.getPath());
                 Log.v(TAG, "Uploading file with size: " + file.length());
 
-                if (mFilesUploadedCounter == 1) {
+                // Debug: limit the files to upload
+                if (mFilesUploadedCounter == 20) {
                     mFilesToUploadCounter = 1;
                     uploadFinished();
                     return;
                 }
+
                 if (isStopped) {
                     return;
                 }
